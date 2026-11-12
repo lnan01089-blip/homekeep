@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.vite/
+*.log
+.DS_Store
+
+# Supplied visual references (not part of the web prototype)
+/Untitled (1).pdf
+/Untitled (5).fig
