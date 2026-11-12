@@ -51,6 +51,7 @@ export default function SmartList() {
       (item) =>
         !normalized ||
         item.name.toLowerCase().includes(normalized) ||
+        (item.variant || '').toLowerCase().includes(normalized) ||
         (item.spec || '').toLowerCase().includes(normalized),
     )
     return filtered.sort((a, b) => {

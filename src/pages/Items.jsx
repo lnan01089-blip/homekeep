@@ -46,6 +46,7 @@ export default function Items() {
         const location = findLocation(item.location)
         return (
           item.name.toLowerCase().includes(normalizedQuery) ||
+          (item.variant || '').toLowerCase().includes(normalizedQuery) ||
           (item.spec || '').toLowerCase().includes(normalizedQuery) ||
           category.name.includes(normalizedQuery) ||
           location.name.includes(normalizedQuery)

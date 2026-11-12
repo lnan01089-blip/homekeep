@@ -79,9 +79,12 @@ export default function ItemDetail() {
       ? addDays(Number(item.afterOpenDays), parseDate(item.openedDate))
       : null
   const totalShelfDays =
-    item.purchaseDate && item.expiryDate
-      ? Math.max(1, Math.round((parseDate(item.expiryDate) - parseDate(item.purchaseDate)) / 86_400_000))
+    item.productionDate && item.expiryDate
+      ? Math.max(1, Math.round((parseDate(item.expiryDate) - parseDate(item.productionDate)) / 86_400_000))
       : null
+  const shelfLifeLabel = item.shelfLifeValue
+    ? `${item.shelfLifeValue}${item.shelfLifeUnit || '天'}`
+    : '未设置'
   const remainingRatio =
     totalShelfDays && days !== null ? Math.max(0, Math.min(1, days / totalShelfDays)) : null
 
@@ -96,7 +99,7 @@ export default function ItemDetail() {
   const handleDelete = async () => {
     const confirmed = await askConfirm({
       title: '删除这件物品？',
-      message: `「${item.name}」的记录会从 HomeKeep 中移除，此操作无法撤销。`,
+      message: `「${item.name}${item.variant ? ` · ${item.variant}` : ''}」的记录会从 HomeKeep 中移除，此操作无法撤销。`,
       confirmLabel: '确认删除',
       cancelLabel: '先留着',
       danger: true,
@@ -149,7 +152,7 @@ export default function ItemDetail() {
         <div className="item-identity">
           <div>
             <h1>{item.name}</h1>
-            <p>{item.spec || category.name}</p>
+            <p>{item.variant ? `${item.variant}${item.spec ? ` · ${item.spec}` : ''}` : item.spec || category.name}</p>
           </div>
           {!quantityMissing && (
             <span className="identity-quantity">
@@ -259,13 +262,30 @@ export default function ItemDetail() {
         </div>
         <div className="info-list">
           <InfoRow label="物品分类" icon={Sparkles} valueNode={category.name} />
-          <InfoRow label="购买日期" icon={CalendarDays} value={item.purchaseDate ? formatDate(item.purchaseDate, settings.dateFormat) : '未记录'} muted={!item.purchaseDate} />
           <InfoRow
-          label="有效期"
-          icon={AlarmClock}
-          value={item.expiryDate ? `${formatDate(item.expiryDate, settings.dateFormat)}${item.expiryTime ? ` ${item.expiryTime}` : ''}` : '未设置'}
-          muted={!item.expiryDate}
-        />
+            label="规格 / 口味"
+            icon={Sparkles}
+            value={item.variant || '未设置'}
+            muted={!item.variant}
+          />
+          <InfoRow
+            label="生产日期"
+            icon={CalendarDays}
+            value={item.productionDate ? formatDate(item.productionDate, settings.dateFormat) : '未记录'}
+            muted={!item.productionDate}
+          />
+          <InfoRow
+            label="保质期"
+            icon={NotebookPen}
+            value={shelfLifeLabel}
+            muted={!item.shelfLifeValue}
+          />
+          <InfoRow
+            label="有效期"
+            icon={AlarmClock}
+            value={item.expiryDate ? `${formatDate(item.expiryDate, settings.dateFormat)}${item.expiryTime ? ` ${item.expiryTime}` : ''}` : '未设置'}
+            muted={!item.expiryDate}
+          />
           <InfoRow label="开封日期" icon={Clock3} value={item.openedDate ? formatDate(item.openedDate, settings.dateFormat) : '未开封'} muted={!item.openedDate} />
           <InfoRow
             label="开封后使用期限"

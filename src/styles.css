@@ -8981,3 +8981,204 @@ button:disabled {
   font-size: 8.5px;
   line-height: 1.5;
 }
+
+/* Production date, shelf life and custom taxonomy fields */
+.form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.form-label-row .form-label {
+  margin-bottom: 0;
+}
+
+.form-inline-add {
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: #789382;
+  background: rgba(227, 238, 230, 0.65);
+  font-size: 8px;
+  font-weight: 550;
+}
+
+.form-auto-label {
+  color: #9da59e;
+  font-size: 8px;
+}
+
+.shelf-life-field {
+  display: flex;
+  height: 43px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 5px 0 11px;
+  border: 1px solid rgba(66, 77, 71, 0.08);
+  border-radius: 12px;
+  background: rgba(249, 247, 241, 0.72);
+}
+
+.shelf-life-field input {
+  min-width: 0;
+  flex: 1;
+  color: #536058;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.shelf-life-field button {
+  display: inline-flex;
+  height: 31px;
+  align-items: center;
+  gap: 3px;
+  padding: 0 9px;
+  border-radius: 8px;
+  color: #75846d;
+  background: rgba(230, 239, 232, 0.78);
+  font-size: 9.5px;
+}
+
+.item-variant {
+  color: #9c8966;
+}
+
+/* Product groups: 大类 → 商品 → 规格/口味 */
+.product-group-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-group-card {
+  overflow: hidden;
+  border: 1px solid rgba(66, 77, 71, 0.05);
+  border-radius: 21px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 5px 18px rgba(66, 77, 71, 0.04);
+}
+
+.product-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+}
+
+.product-group-title {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.product-group-name-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-group-name-line h3 {
+  overflow: hidden;
+  color: #536058;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-group-name-line span {
+  flex: 0 0 auto;
+  padding: 2px 5px;
+  border-radius: 5px;
+  color: #83958a;
+  background: #edf3ee;
+  font-size: 7.5px;
+}
+
+.product-group-title p {
+  color: #89958c;
+  font-size: 9.5px;
+  font-weight: 550;
+}
+
+.product-add-spec {
+  display: inline-flex;
+  height: 28px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  border-radius: 8px;
+  color: #708b79;
+  background: #edf4ee;
+  font-size: 8.5px;
+  font-weight: 550;
+}
+
+.product-variant-list {
+  border-top: 1px solid rgba(66, 77, 71, 0.05);
+}
+
+.product-variant-row {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px 8px 20px;
+  border-bottom: 1px solid rgba(66, 77, 71, 0.04);
+  text-align: left;
+}
+
+.product-variant-row:last-child {
+  border-bottom: 0;
+}
+
+.product-variant-main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.product-variant-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-variant-name {
+  overflow: hidden;
+  color: #627069;
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-variant-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: #9aa29b;
+  font-size: 8.5px;
+}
+
+.product-variant-meta i {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #b4bab3;
+}
+
+.product-variant-chevron {
+  flex: 0 0 auto;
+  color: #b4bbb4;
+}

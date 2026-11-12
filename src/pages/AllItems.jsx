@@ -37,6 +37,7 @@ export default function AllItems() {
         const matchesSearch =
           !q ||
           item.name.toLowerCase().includes(q) ||
+          (item.variant || '').toLowerCase().includes(q) ||
           (item.spec || '').toLowerCase().includes(q) ||
           categoryName.includes(q)
         const matchesFilter =

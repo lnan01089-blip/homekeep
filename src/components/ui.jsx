@@ -294,6 +294,12 @@ export function ItemRow({
           <span>{category.name}</span>
           <i />
           <span>{location.name}</span>
+          {item.variant && (
+            <>
+              <i />
+              <span className="item-variant">{item.variant}</span>
+            </>
+          )}
           {!compact && quantityLabel && (
             <>
               <i />

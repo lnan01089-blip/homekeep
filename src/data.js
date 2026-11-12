@@ -266,12 +266,13 @@ const baseItems = [
   {
     id: 'milk',
     name: '鲜牛奶',
+    variant: '原味',
     spec: '全脂鲜牛奶 · 950ml',
     category: 'food',
     location: 'fridge',
     quantity: 2,
     unit: '瓶',
-    purchaseDate: addDays(-2),
+    productionDate: addDays(-2),
     expiryDate: addDays(2),
     openedDate: addDays(-1),
     afterOpenDays: 3,
@@ -288,7 +289,7 @@ const baseItems = [
     location: 'fridge',
     quantity: 1,
     unit: '盒',
-    purchaseDate: addDays(-6),
+    productionDate: addDays(-6),
     expiryDate: addDays(28),
     note: '放在冰箱门内侧，记得小头朝下。',
     glyph: 'eggs',
@@ -302,7 +303,7 @@ const baseItems = [
     location: 'kitchenCabinet',
     quantity: 1,
     unit: '袋',
-    purchaseDate: addDays(-1),
+    productionDate: addDays(-1),
     expiryDate: addDays(18),
     note: '早餐主食，开封后密封保存。',
     imageKey: 'bread',
@@ -317,7 +318,7 @@ const baseItems = [
     location: 'fridge',
     quantity: 6,
     unit: '个',
-    purchaseDate: addDays(-4),
+    productionDate: addDays(-4),
     expiryDate: addDays(21),
     note: '与香蕉分开放，可以保存得更久。',
     glyph: 'apple',
@@ -331,7 +332,7 @@ const baseItems = [
     location: 'fridge',
     quantity: 4,
     unit: '杯',
-    purchaseDate: addDays(-3),
+    productionDate: addDays(-3),
     expiryDate: addDays(17),
     note: '',
     glyph: 'yogurt',
@@ -345,7 +346,7 @@ const baseItems = [
     location: 'fridge',
     quantity: 1,
     unit: '瓶',
-    purchaseDate: addDays(-2),
+    productionDate: addDays(-2),
     expiryDate: addDays(25),
     note: '开封后两天内饮用完。',
     imageKey: 'water',
@@ -360,25 +361,27 @@ const baseItems = [
     location: 'fridge',
     quantity: 1,
     unit: '颗',
-    purchaseDate: addDays(-1),
+    productionDate: addDays(-1),
     expiryDate: addDays(16),
     note: '',
     glyph: 'lettuce',
     accent: '#E8EFE4',
   },
   {
-    id: 'cheese',
-    name: '奶酪',
-    spec: '切达奶酪片',
+    id: 'strawberryMilk',
+    name: '鲜牛奶',
+    variant: '草莓味',
+    spec: '草莓风味鲜牛奶 · 950ml',
     category: 'food',
     location: 'fridge',
     quantity: 1,
-    unit: '盒',
-    purchaseDate: addDays(-5),
-    expiryDate: addDays(20),
-    note: '',
-    glyph: 'cheese',
-    accent: '#F3EDD8',
+    unit: '瓶',
+    productionDate: addDays(-2),
+    expiryDate: addDays(16),
+    note: '与鲜牛奶同属一个商品，按口味单独统计。',
+    imageKey: 'milk',
+    glyph: 'milk',
+    accent: '#F4E7E1',
   },
   {
     id: 'water',
@@ -388,7 +391,7 @@ const baseItems = [
     location: 'sideboard',
     quantity: 6,
     unit: '瓶',
-    purchaseDate: addDays(-10),
+    productionDate: addDays(-10),
     expiryDate: addDays(300),
     note: '',
     imageKey: 'water',
@@ -403,7 +406,7 @@ const baseItems = [
     location: 'sideboard',
     quantity: 1,
     unit: '袋',
-    purchaseDate: addDays(-8),
+    productionDate: addDays(-8),
     expiryDate: addDays(120),
     note: '开封后放进密封罐，四周内风味最佳。',
     glyph: 'coffee',
@@ -417,7 +420,7 @@ const baseItems = [
     location: 'sideboard',
     quantity: 2,
     unit: '盒',
-    purchaseDate: addDays(-12),
+    productionDate: addDays(-12),
     expiryDate: addDays(60),
     note: '',
     glyph: 'cookies',
@@ -431,7 +434,7 @@ const baseItems = [
     location: 'bathroomCabinet',
     quantity: 30,
     unit: '片',
-    purchaseDate: addDays(-25),
+    productionDate: addDays(-25),
     expiryDate: addDays(5),
     note: '每日一片，请勿超量。放在儿童接触不到的地方。',
     imageKey: 'vitamins',
@@ -446,7 +449,7 @@ const baseItems = [
     location: 'bathroomCabinet',
     quantity: 20,
     unit: '片',
-    purchaseDate: addDays(-90),
+    productionDate: addDays(-90),
     expiryDate: addDays(500),
     note: '',
     glyph: 'bandage',
@@ -460,7 +463,7 @@ const baseItems = [
     location: 'bedsideTable',
     quantity: 1,
     unit: '盒',
-    purchaseDate: addDays(-30),
+    productionDate: addDays(-30),
     expiryDate: addDays(210),
     note: '仅在需要时服用，用药前请阅读说明书。',
     glyph: 'ibuprofen',
@@ -474,7 +477,7 @@ const baseItems = [
     location: 'bedsideTable',
     quantity: 1,
     unit: '支',
-    purchaseDate: addDays(-390),
+    productionDate: addDays(-390),
     expiryDate: null,
     note: '电池电量偏低，建议更换电池后继续使用。',
     glyph: 'thermometer',
@@ -486,12 +489,13 @@ const baseItems = [
   {
     id: 'cream',
     name: '面霜',
+    variant: '欧莱雅',
     spec: '修护保湿面霜 · 50g',
     category: 'beauty',
     location: 'bedroomCabinet',
     quantity: 1,
     unit: '罐',
-    purchaseDate: addDays(-20),
+    productionDate: addDays(-20),
     expiryDate: addDays(12),
     openedDate: addDays(-15),
     afterOpenDays: 60,
@@ -508,7 +512,7 @@ const baseItems = [
     location: 'bedroomCabinet',
     quantity: 1,
     unit: '瓶',
-    purchaseDate: addDays(-36),
+    productionDate: addDays(-36),
     expiryDate: addDays(90),
     openedDate: addDays(-12),
     afterOpenDays: 180,
@@ -524,7 +528,7 @@ const baseItems = [
     location: 'bedsideTable',
     quantity: 2,
     unit: '支',
-    purchaseDate: addDays(-14),
+    productionDate: addDays(-14),
     expiryDate: addDays(150),
     note: '',
     imageKey: 'bathroom',
@@ -539,7 +543,7 @@ const baseItems = [
     location: 'bathroomCabinet',
     quantity: 1,
     unit: '瓶',
-    purchaseDate: addDays(-30),
+    productionDate: addDays(-30),
     expiryDate: addDays(180),
     note: '',
     imageKey: 'bathroom',
@@ -554,7 +558,7 @@ const baseItems = [
     location: 'bathroomCabinet',
     quantity: 1,
     unit: '支',
-    purchaseDate: addDays(-20),
+    productionDate: addDays(-20),
     expiryDate: addDays(100),
     note: '',
     glyph: 'cleanser',
@@ -568,7 +572,7 @@ const baseItems = [
     location: 'bathroomCabinet',
     quantity: 1,
     unit: '瓶',
-    purchaseDate: addDays(-55),
+    productionDate: addDays(-55),
     expiryDate: addDays(160),
     note: '',
     imageKey: 'soap',
@@ -583,7 +587,7 @@ const baseItems = [
     location: 'wardrobe',
     quantity: 1,
     unit: '瓶',
-    purchaseDate: addDays(-8),
+    productionDate: addDays(-8),
     expiryDate: addDays(240),
     note: '',
     imageKey: 'linen',
@@ -598,7 +602,7 @@ const baseItems = [
     location: 'storageCabinet',
     quantity: 2,
     unit: '瓶',
-    purchaseDate: addDays(-25),
+    productionDate: addDays(-25),
     expiryDate: addDays(360),
     note: '低泡配方，适合机洗。余量不足时记得提前补充。',
     imageKey: 'kitchen',
@@ -614,7 +618,7 @@ const baseItems = [
     location: 'kitchenCabinet',
     quantity: 1,
     unit: '瓶',
-    purchaseDate: addDays(-12),
+    productionDate: addDays(-12),
     expiryDate: addDays(90),
     note: '',
     imageKey: 'soap',
@@ -629,7 +633,7 @@ const baseItems = [
     location: 'storageCabinet',
     quantity: 1,
     unit: '瓶',
-    purchaseDate: addDays(-50),
+    productionDate: addDays(-50),
     expiryDate: addDays(240),
     note: '请按说明稀释使用。',
     glyph: 'disinfectant',
@@ -643,7 +647,7 @@ const baseItems = [
     location: 'storageCabinet',
     quantity: 3,
     unit: '块',
-    purchaseDate: addDays(-38),
+    productionDate: addDays(-38),
     expiryDate: addDays(365),
     note: '日常清洁使用，建议每四周更换一次。',
     imageKey: 'linen',
@@ -661,7 +665,7 @@ const baseItems = [
     location: 'storageCabinet',
     quantity: 1,
     unit: '盒',
-    purchaseDate: addDays(-22),
+    productionDate: addDays(-22),
     expiryDate: addDays(180),
     note: '请存放在儿童接触不到的地方。',
     glyph: 'pods',
@@ -676,7 +680,7 @@ const baseItems = [
     location: 'livingCabinet',
     quantity: 3,
     unit: '包',
-    purchaseDate: addDays(-10),
+    productionDate: addDays(-10),
     expiryDate: null,
     note: '',
     glyph: 'tissues',
@@ -690,7 +694,7 @@ const baseItems = [
     location: 'storageCabinet',
     quantity: 4,
     unit: '包',
-    purchaseDate: addDays(-12),
+    productionDate: addDays(-12),
     expiryDate: null,
     note: '',
     imageKey: 'pantry',
@@ -705,7 +709,7 @@ const baseItems = [
     location: 'tvStand',
     quantity: 8,
     unit: '节',
-    purchaseDate: addDays(-20),
+    productionDate: addDays(-20),
     expiryDate: null,
     note: '遥控器和体温计的备用电池。',
     glyph: 'batteries',
@@ -719,7 +723,7 @@ const baseItems = [
     location: 'storageCabinet',
     quantity: 2,
     unit: '个',
-    purchaseDate: addDays(-40),
+    productionDate: addDays(-40),
     expiryDate: null,
     note: '',
     glyph: 'bulbs',
@@ -733,7 +737,7 @@ const baseItems = [
     location: 'kitchenCabinet',
     quantity: 1,
     unit: '卷',
-    purchaseDate: addDays(-8),
+    productionDate: addDays(-8),
     expiryDate: null,
     note: '',
     glyph: 'trashbags',
@@ -747,7 +751,7 @@ const baseItems = [
     location: 'kitchenCabinet',
     quantity: 1,
     unit: '袋',
-    purchaseDate: addDays(-6),
+    productionDate: addDays(-6),
     expiryDate: addDays(-3),
     note: '已过期，等待你决定是否保留。',
     imageKey: 'bread',
@@ -756,12 +760,30 @@ const baseItems = [
   },
 ]
 
-export const seedItems = baseItems.map((item, index) => ({
-  id: item.id,
-  createdAt: addDays(-(40 - index)),
-  retained: false,
-  ...item,
-}))
+const daysBetween = (start, end) => {
+  if (!start || !end) return null
+  return Math.max(1, Math.round((parseDate(end).getTime() - parseDate(start).getTime()) / D))
+}
+
+export const seedItems = baseItems.map((item, index) => {
+  const productionDate = item.productionDate || null
+  const expiryDate = item.expiryDate || null
+  const shelfLifeValue =
+    item.shelfLifeValue ??
+    (productionDate && expiryDate ? daysBetween(productionDate, expiryDate) : null)
+
+  return {
+    id: item.id,
+    createdAt: addDays(-(40 - index)),
+    retained: false,
+    variant: '',
+    shelfLifeUnit: '天',
+    ...item,
+    productionDate,
+    shelfLifeValue,
+    shelfLifeUnit: item.shelfLifeUnit || '天',
+  }
+})
 
 export const defaultSettings = {
   remindersOn: true,
@@ -772,6 +794,72 @@ export const defaultSettings = {
   reminderTime: '09:00',
   dateFormat: 'zh',
   sound: true,
+}
+
+export const shelfLifeUnits = ['天', '个月', '年']
+
+export const calculateExpiryDate = (productionDate, value, unit = '天') => {
+  if (!productionDate || value === '' || value === null || value === undefined) return ''
+  const amount = Number(value)
+  if (!Number.isFinite(amount) || amount <= 0) return ''
+  const base = parseDate(productionDate)
+  if (!base) return ''
+  if (unit === '个月' || unit === '年') {
+    const months = unit === '年' ? amount * 12 : amount
+    const originalDay = base.getDate()
+    base.setDate(1)
+    base.setMonth(base.getMonth() + Math.round(months))
+    const lastDay = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate()
+    base.setDate(Math.min(originalDay, lastDay))
+  } else {
+    base.setDate(base.getDate() + Math.round(amount))
+  }
+  return dateKey(base)
+}
+
+const normalizeProductKey = (item) =>
+  `${item.category}::${(item.name || '').trim().toLocaleLowerCase('zh-CN')}`
+
+export const groupItemsByProduct = (items) => {
+  const groups = new Map()
+  items.forEach((item) => {
+    const key = normalizeProductKey(item)
+    if (!groups.has(key)) {
+      groups.set(key, {
+        key,
+        name: item.name,
+        category: item.category,
+        items: [],
+      })
+    }
+    groups.get(key).items.push(item)
+  })
+
+  return [...groups.values()].map((group) => {
+    const sortedItems = [...group.items].sort((a, b) => {
+      const da = daysUntil(a.expiryDate)
+      const db = daysUntil(b.expiryDate)
+      if (da === null) return 1
+      if (db === null) return -1
+      return da - db
+    })
+    const quantities = sortedItems.map((item) =>
+      item.quantity === null || item.quantity === '' || item.quantity === undefined
+        ? null
+        : Number(item.quantity),
+    )
+    const units = [...new Set(sortedItems.map((item) => item.unit || '').filter(Boolean))]
+    const completeQuantities = quantities.every((quantity) => quantity !== null)
+    return {
+      ...group,
+      items: sortedItems,
+      variantCount: sortedItems.length,
+      unit: units.length === 1 ? units[0] : '',
+      totalQuantity: completeQuantities && units.length === 1
+        ? quantities.reduce((sum, quantity) => sum + quantity, 0)
+        : null,
+    }
+  })
 }
 
 let customCategoryRegistry = []

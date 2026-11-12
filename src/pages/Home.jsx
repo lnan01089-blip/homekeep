@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Boxes, CalendarDays, MapPin, Menu, Settings2, X } from 'lucide-react'
+import { Boxes, CalendarDays, MapPin, Menu, X } from 'lucide-react'
 import { findLocation, formatDate } from '../data'
 import { useStore } from '../store'
 
@@ -35,7 +35,7 @@ const statItems = [
 ]
 
 export default function Home() {
-  const { helpers, navigate, goTab, items, settings, openSidebar } = useStore()
+  const { helpers, navigate, items, settings, openSidebar } = useStore()
   const [popover, setPopover] = useState(null)
   const calendarHeaderRef = useRef(null)
   const { activeItems, soonItems, lowItems, expiredCount } = helpers
@@ -135,9 +135,6 @@ export default function Home() {
           <button className="icon-button settings-button" onClick={openSidebar} aria-label="打开物品导航">
             <Menu size={20} />
           </button>
-          <button className="icon-button settings-button" onClick={() => goTab('settings')} aria-label="打开设置">
-            <Settings2 size={20} />
-          </button>
         </div>
         <div className="home-calendar-card month-calendar-card">
           <div className="month-calendar-head">
@@ -220,7 +217,7 @@ export default function Home() {
                   <div className="calendar-popover-item" key={item.id}>
                     <span className={`calendar-popover-dot tone-${eventTone(item)}`} />
                     <div className="calendar-popover-copy">
-                      <strong>{item.name}</strong>
+                      <strong>{item.name}{item.variant ? ` · ${item.variant}` : ''}</strong>
                       <span className="calendar-popover-meta">
                         <span>
                           <MapPin size={12} />

@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   CalendarDays,
   Check,
@@ -14,10 +14,12 @@ import {
 } from 'lucide-react'
 import {
   addDays,
+  calculateExpiryDate,
   findCategory,
   findLocation,
   formatDate,
   parseDate,
+  shelfLifeUnits,
 } from '../data'
 import { useStore } from '../store'
 import {
@@ -29,16 +31,20 @@ import {
   LocationSelectRender,
   ProductMedia,
   SelectSheet,
+  Sheet,
   TimePickerSheet,
 } from '../components/ui'
 
 const blankForm = {
   name: '',
+  variant: '',
   category: 'food',
   quantity: '',
   unit: '',
   location: 'fridge',
-  purchaseDate: '',
+  productionDate: '',
+  shelfLifeValue: '',
+  shelfLifeUnit: '天',
   expiryDate: '',
   expiryTime: '',
   openedDate: '',
@@ -47,8 +53,8 @@ const blankForm = {
 }
 
 const dateFieldMeta = {
-  purchaseDate: '购买日期',
-  expiryDate: '有效期',
+  productionDate: '生产日期',
+  expiryDate: '有效期至',
   openedDate: '开封日期',
 }
 
@@ -62,6 +68,8 @@ export default function ItemForm() {
     settings,
     allCategories,
     allLocations,
+    addCustomCategory,
+    addCustomLocation,
     addItem,
     updateItem,
     toast,
@@ -77,11 +85,14 @@ export default function ItemForm() {
     if (editingItem) {
       return {
         name: editingItem.name || '',
+        variant: editingItem.variant || '',
         category: editingItem.category || 'food',
         quantity: editingItem.quantity ?? '',
         unit: editingItem.unit || '',
         location: editingItem.location || 'fridge',
-        purchaseDate: editingItem.purchaseDate || '',
+        productionDate: editingItem.productionDate || editingItem.purchaseDate || '',
+        shelfLifeValue: editingItem.shelfLifeValue ? String(editingItem.shelfLifeValue) : '',
+        shelfLifeUnit: editingItem.shelfLifeUnit || '天',
         expiryDate: editingItem.expiryDate || '',
         expiryTime: editingItem.expiryTime || '',
         openedDate: editingItem.openedDate || '',
@@ -99,12 +110,15 @@ export default function ItemForm() {
     }
     return {
       ...blankForm,
+      name: route.params?.product || '',
       category: route.params?.category || 'food',
       location: route.params?.location || 'fridge',
     }
   })
   const [sheet, setSheet] = useState(null)
   const [errors, setErrors] = useState({})
+  const [customCreate, setCustomCreate] = useState(null)
+  const [customName, setCustomName] = useState('')
   const fileRef = useRef(null)
 
   const category = findCategory(form.category)
@@ -122,8 +136,38 @@ export default function ItemForm() {
   }
 
   const setField = (key, value) => {
-    setForm((current) => ({ ...current, [key]: value }))
+    setForm((current) => {
+      const next = { ...current, [key]: value }
+      if (['productionDate', 'shelfLifeValue', 'shelfLifeUnit'].includes(key)) {
+        const computedExpiry = calculateExpiryDate(
+          next.productionDate,
+          next.shelfLifeValue,
+          next.shelfLifeUnit,
+        )
+        if (computedExpiry) {
+          next.expiryDate = computedExpiry
+          if (!next.expiryTime) next.expiryTime = '23:59'
+        }
+      }
+      return next
+    })
     if (errors[key]) setErrors((current) => ({ ...current, [key]: undefined }))
+  }
+
+  const createCustomTaxonomy = () => {
+    if (!customName.trim()) return
+    const created =
+      customCreate === 'category'
+        ? addCustomCategory(customName)
+        : addCustomLocation(customName)
+    if (!created) {
+      toast('名称已存在或不能为空')
+      return
+    }
+    setField(customCreate === 'category' ? 'category' : 'location', created.id)
+    setCustomCreate(null)
+    setCustomName('')
+    toast(`已创建「${created.name}」`)
   }
 
   const handleImage = (event) => {
@@ -149,7 +193,7 @@ export default function ItemForm() {
 
   const submit = () => {
     const nextErrors = {}
-    if (!form.name.trim()) nextErrors.name = '请填写物品名称'
+    if (!form.name.trim()) nextErrors.name = '请填写商品名称'
     if (!form.category) nextErrors.category = '请选择分类'
     if (!form.location) nextErrors.location = '请选择位置'
     if (Object.keys(nextErrors).length) {
@@ -159,6 +203,7 @@ export default function ItemForm() {
     }
     const payload = {
       name: form.name.trim(),
+      variant: form.variant.trim(),
       category: form.category,
       quantity:
         form.quantity === '' || form.quantity === null || Number.isNaN(Number(form.quantity))
@@ -166,7 +211,12 @@ export default function ItemForm() {
           : Math.max(0, Number(form.quantity)),
       unit: form.unit.trim(),
       location: form.location,
-      purchaseDate: form.purchaseDate || null,
+      productionDate: form.productionDate || null,
+      shelfLifeValue:
+        form.shelfLifeValue === '' || Number.isNaN(Number(form.shelfLifeValue))
+          ? null
+          : Math.max(1, Number(form.shelfLifeValue)),
+      shelfLifeUnit: form.shelfLifeValue ? form.shelfLifeUnit : null,
       expiryDate: form.expiryDate || null,
       expiryTime: form.expiryDate && form.expiryTime ? form.expiryTime : null,
       openedDate: form.openedDate || null,
@@ -174,7 +224,7 @@ export default function ItemForm() {
       note: form.note.trim(),
       imageKey,
       imageUrl: photoUrl || null,
-      spec: editingItem?.spec || (scanned ? '全脂鲜牛奶 · 950ml' : form.unit ? `${category.name} · ${form.unit}` : category.name),
+      spec: editingItem?.spec || (scanned ? '全脂鲜牛奶 · 950ml' : ''),
       glyph: editingItem?.glyph || (scanned ? 'milk' : form.category),
       accent: editingItem?.accent || category.tint,
     }
@@ -185,7 +235,8 @@ export default function ItemForm() {
     } else {
       addItem(payload)
       toast(`「${payload.name}」已放入${findLocation(payload.location).name}`)
-      goTab('items')
+      if (route.params?.returnTo === 'category') back()
+      else goTab('items')
     }
   }
 
@@ -281,7 +332,7 @@ export default function ItemForm() {
 
         <label className={`form-field ${errors.name ? 'has-error' : ''}`}>
           <span className="form-label">
-            物品名称 <em>必填</em>
+            商品名称 <em>必填</em>
           </span>
           <div className="text-input-wrap">
             <input
@@ -299,10 +350,39 @@ export default function ItemForm() {
           {errors.name && <span className="field-error">{errors.name}</span>}
         </label>
 
+        <label className="form-field">
+          <span className="form-label">规格 / 口味</span>
+          <div className="text-input-wrap">
+            <input
+              value={form.variant}
+              onChange={(event) => setField('variant', event.target.value)}
+              placeholder="例如：草莓味、欧莱雅"
+              maxLength={24}
+            />
+            {form.variant && (
+              <button type="button" onClick={() => setField('variant', '')} aria-label="清空规格">
+                <X size={14} />
+              </button>
+            )}
+          </div>
+        </label>
+
         <div className="form-field">
-          <span className="form-label">
-            物品分类 <em>必填</em>
-          </span>
+          <div className="form-label-row">
+            <span className="form-label">
+              物品分类 <em>必填</em>
+            </span>
+            <button
+              type="button"
+              className="form-inline-add"
+              onClick={() => {
+                setCustomName('')
+                setCustomCreate('category')
+              }}
+            >
+              + 自定义
+            </button>
+          </div>
           <button className="form-select" onClick={() => setSheet('category')}>
             <span className="form-select-value">
               <span
@@ -361,9 +441,21 @@ export default function ItemForm() {
         </div>
 
         <div className="form-field">
-          <span className="form-label">
-            存放位置 <em>必填</em>
-          </span>
+          <div className="form-label-row">
+            <span className="form-label">
+              存放位置 <em>必填</em>
+            </span>
+            <button
+              type="button"
+              className="form-inline-add"
+              onClick={() => {
+                setCustomName('')
+                setCustomCreate('location')
+              }}
+            >
+              + 自定义
+            </button>
+          </div>
           <button className="form-select" onClick={() => setSheet('location')}>
             <span className="form-select-value">
               <span
@@ -393,86 +485,152 @@ export default function ItemForm() {
         </div>
 
         <div className="date-fields-stack">
-          {Object.entries(dateFieldMeta).map(([key, label]) => (
-            <Fragment key={key}>
-              <div className="form-field">
-                <span className="form-label">{label}</span>
-                <button
-                  className={`date-field ${form[key] ? 'has-date' : ''}`}
-                  onClick={() => openDate(key)}
+          <div className="form-field">
+            <span className="form-label">生产日期</span>
+            <button
+              className={`date-field ${form.productionDate ? 'has-date' : ''}`}
+              onClick={() => openDate('productionDate')}
+            >
+              <span>
+                <CalendarDays size={17} />
+                {form.productionDate ? formatDate(form.productionDate, settings.dateFormat) : '选择生产日期'}
+              </span>
+              {form.productionDate ? (
+                <span
+                  className="date-clear"
+                  role="button"
+                  tabIndex={0}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setField('productionDate', '')
+                  }}
+                  onKeyDown={(event) => event.key === 'Enter' && setField('productionDate', '')}
                 >
-                  <span>
-                    <CalendarDays size={17} />
-                    {form[key] ? formatDate(form[key], settings.dateFormat) : `选择${label}`}
-                  </span>
-                  {form[key] ? (
-                    <span
-                      className="date-clear"
-                      role="button"
-                      tabIndex={0}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        if (key === 'expiryDate') {
-                          setForm((current) => ({ ...current, expiryDate: '', expiryTime: '' }))
-                        } else {
-                          setField(key, '')
-                        }
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key !== 'Enter') return
-                        if (key === 'expiryDate') {
-                          setForm((current) => ({ ...current, expiryDate: '', expiryTime: '' }))
-                        } else {
-                          setField(key, '')
-                        }
-                      }}
-                    >
-                      <X size={14} />
-                    </span>
-                  ) : (
-                    <ChevronRight size={16} />
-                  )}
-                </button>
-              </div>
-              {key === 'expiryDate' && (
-                <div className="form-field">
-                  <span className="form-label">有效期时间</span>
-                  <button
-                    className={`date-field ${form.expiryTime ? 'has-date' : ''} ${!form.expiryDate ? 'is-time-locked' : ''}`}
-                    onClick={() => {
-                      if (!form.expiryDate) {
-                        toast('请先选择有效期日期')
-                        return
-                      }
-                      setSheet('expiryTime')
-                    }}
-                    aria-disabled={!form.expiryDate}
-                  >
-                    <span>
-                      <Clock3 size={17} />
-                      {form.expiryTime || '选择时间'}
-                    </span>
-                    {form.expiryTime ? (
-                      <span
-                        className="date-clear"
-                        role="button"
-                        tabIndex={0}
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          setField('expiryTime', '')
-                        }}
-                        onKeyDown={(event) => event.key === 'Enter' && setField('expiryTime', '')}
-                      >
-                        <X size={14} />
-                      </span>
-                    ) : (
-                      <ChevronRight size={16} />
-                    )}
-                  </button>
-                </div>
+                  <X size={14} />
+                </span>
+              ) : (
+                <ChevronRight size={16} />
               )}
-            </Fragment>
-          ))}
+            </button>
+          </div>
+
+          <div className="form-field">
+            <span className="form-label">保质期</span>
+            <div className="shelf-life-field">
+              <input
+                type="number"
+                inputMode="numeric"
+                min="1"
+                value={form.shelfLifeValue}
+                onChange={(event) => setField('shelfLifeValue', event.target.value)}
+                placeholder="例如 6"
+              />
+              <button type="button" onClick={() => setSheet('shelfLifeUnit')}>
+                {form.shelfLifeUnit}
+                <ChevronDown size={14} />
+              </button>
+            </div>
+          </div>
+
+          <div className="form-field">
+            <div className="form-label-row">
+              <span className="form-label">有效期至</span>
+              <span className="form-auto-label">自动计算 · 可修改</span>
+            </div>
+            <button
+              className={`date-field ${form.expiryDate ? 'has-date' : ''}`}
+              onClick={() => openDate('expiryDate')}
+            >
+              <span>
+                <CalendarDays size={17} />
+                {form.expiryDate ? formatDate(form.expiryDate, settings.dateFormat) : '选择有效期日期'}
+              </span>
+              {form.expiryDate ? (
+                <span
+                  className="date-clear"
+                  role="button"
+                  tabIndex={0}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setForm((current) => ({ ...current, expiryDate: '', expiryTime: '' }))
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter') return
+                    setForm((current) => ({ ...current, expiryDate: '', expiryTime: '' }))
+                  }}
+                >
+                  <X size={14} />
+                </span>
+              ) : (
+                <ChevronRight size={16} />
+              )}
+            </button>
+          </div>
+
+          <div className="form-field">
+            <span className="form-label">有效期时间</span>
+            <button
+              className={`date-field ${form.expiryTime ? 'has-date' : ''} ${!form.expiryDate ? 'is-time-locked' : ''}`}
+              onClick={() => {
+                if (!form.expiryDate) {
+                  toast('请先选择有效期日期')
+                  return
+                }
+                setSheet('expiryTime')
+              }}
+              aria-disabled={!form.expiryDate}
+            >
+              <span>
+                <Clock3 size={17} />
+                {form.expiryTime || '选择时间'}
+              </span>
+              {form.expiryTime ? (
+                <span
+                  className="date-clear"
+                  role="button"
+                  tabIndex={0}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setField('expiryTime', '')
+                  }}
+                  onKeyDown={(event) => event.key === 'Enter' && setField('expiryTime', '')}
+                >
+                  <X size={14} />
+                </span>
+              ) : (
+                <ChevronRight size={16} />
+              )}
+            </button>
+          </div>
+
+          <div className="form-field">
+            <span className="form-label">开封日期</span>
+            <button
+              className={`date-field ${form.openedDate ? 'has-date' : ''}`}
+              onClick={() => openDate('openedDate')}
+            >
+              <span>
+                <CalendarDays size={17} />
+                {form.openedDate ? formatDate(form.openedDate, settings.dateFormat) : '选择开封日期'}
+              </span>
+              {form.openedDate ? (
+                <span
+                  className="date-clear"
+                  role="button"
+                  tabIndex={0}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setField('openedDate', '')
+                  }}
+                  onKeyDown={(event) => event.key === 'Enter' && setField('openedDate', '')}
+                >
+                  <X size={14} />
+                </span>
+              ) : (
+                <ChevronRight size={16} />
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="form-field">
@@ -603,6 +761,40 @@ export default function ItemForm() {
         value={form.expiryTime}
         onSelect={(value) => setField('expiryTime', value)}
       />
+
+      <SelectSheet
+        open={sheet === 'shelfLifeUnit'}
+        onClose={() => setSheet(null)}
+        title="保质期单位"
+        options={shelfLifeUnits.map((unit) => ({ value: unit, label: unit }))}
+        value={form.shelfLifeUnit}
+        onSelect={(value) => setField('shelfLifeUnit', value)}
+        columns={3}
+      />
+
+      <Sheet
+        open={Boolean(customCreate)}
+        onClose={() => setCustomCreate(null)}
+        title={customCreate === 'category' ? '新建自定义分类' : '新建自定义位置'}
+      >
+        <div className="sidebar-create-form">
+          <label>
+            <input
+              value={customName}
+              onChange={(event) => setCustomName(event.target.value)}
+              placeholder={customCreate === 'category' ? '例如：宠物用品、酒类' : '例如：阳台柜、书房'}
+              maxLength={12}
+              autoFocus
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') createCustomTaxonomy()
+              }}
+            />
+          </label>
+          <button className="sidebar-create-submit" onClick={createCustomTaxonomy} disabled={!customName.trim()}>
+            创建
+          </button>
+        </div>
+      </Sheet>
     </div>
   )
 }

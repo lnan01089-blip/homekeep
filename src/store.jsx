@@ -14,12 +14,32 @@ import {
 const STORAGE_KEY = 'homekeep.prototype.v1'
 const StoreContext = createContext(null)
 
+const normalizeStoredItem = (item) => {
+  const productionDate = item.productionDate ?? item.purchaseDate ?? null
+  const expiryDate = item.expiryDate ?? null
+  let shelfLifeValue = item.shelfLifeValue ?? null
+  if (shelfLifeValue === null && productionDate && expiryDate) {
+    shelfLifeValue = Math.max(
+      1,
+      Math.round((parseDate(expiryDate).getTime() - parseDate(productionDate).getTime()) / 86_400_000),
+    )
+  }
+  return {
+    ...item,
+    variant: item.variant || '',
+    productionDate,
+    shelfLifeValue,
+    shelfLifeUnit: item.shelfLifeUnit || '天',
+  }
+}
+
 const readSaved = () => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed.items)) return null
+    parsed.items = parsed.items.map(normalizeStoredItem)
     return parsed
   } catch {
     return null

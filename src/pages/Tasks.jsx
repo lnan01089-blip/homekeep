@@ -46,6 +46,7 @@ function TaskCard({ item, type, onOpen, onQuickAction, quickLabel }) {
           <span className="reminder-item-copy">
             <span className="reminder-item-name">
               {item.name}
+              {item.variant ? <span className="item-variant">{item.variant}</span> : null}
               <span className={`task-kind tone-${isLow ? 'low' : 'replace'}`}>
                 {isLow ? '补货' : '更换'}
               </span>
