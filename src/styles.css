@@ -7900,3 +7900,140 @@ button:disabled {
 .calendar-day-list .item-row + .item-row {
   border-top: 1px solid rgba(66, 77, 71, 0.06);
 }
+
+/* Date-anchored calendar popover */
+.home-calendar-header {
+  z-index: 12;
+}
+
+.calendar-popover {
+  position: absolute;
+  z-index: 30;
+  padding: 11px 13px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  background: rgba(253, 251, 246, 0.97);
+  box-shadow:
+    0 16px 36px rgba(45, 56, 48, 0.16),
+    0 3px 10px rgba(45, 56, 48, 0.06);
+  animation: calendar-pop-in 0.2s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  backdrop-filter: blur(16px);
+}
+
+.calendar-popover::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: var(--arrow-x, 50%);
+  width: 11px;
+  height: 11px;
+  border-top: 1px solid rgba(255, 255, 255, 0.92);
+  border-left: 1px solid rgba(255, 255, 255, 0.92);
+  background: #fdfbf6;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@keyframes calendar-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.calendar-popover-close {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 7px;
+  color: #99a199;
+  background: rgba(66, 77, 71, 0.045);
+}
+
+.calendar-popover-list {
+  display: flex;
+  max-height: 210px;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.calendar-popover-list::-webkit-scrollbar {
+  display: none;
+}
+
+.calendar-popover-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 20px 10px 1px;
+  border-bottom: 1px solid rgba(66, 77, 71, 0.055);
+}
+
+.calendar-popover-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+
+.calendar-popover-dot {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.calendar-popover-dot.tone-expired {
+  background: #b9766d;
+}
+
+.calendar-popover-dot.tone-soon {
+  background: #c4935f;
+}
+
+.calendar-popover-dot.tone-normal {
+  background: #9db6a4;
+}
+
+.calendar-popover-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendar-popover-copy strong {
+  overflow: hidden;
+  color: #4e5c53;
+  font-size: 13.5px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-popover-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 9px;
+  color: #919b93;
+  font-size: 10.5px;
+}
+
+.calendar-popover-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.calendar-popover-meta svg {
+  color: #a0ada2;
+}

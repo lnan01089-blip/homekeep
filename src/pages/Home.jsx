@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
-import { ChevronRight, Plus, Settings2, Sparkles } from 'lucide-react'
-import { categories } from '../data'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { CalendarDays, ChevronRight, MapPin, Plus, Settings2, Sparkles, X } from 'lucide-react'
+import { categories, findLocation, formatDate } from '../data'
 import { useStore } from '../store'
-import { BrandMark, CategoryIcon, ItemRow, SectionHeader, Sheet } from '../components/ui'
+import { BrandMark, CategoryIcon, ItemRow, SectionHeader } from '../components/ui'
 
 function MiniHomeDoodle() {
   return (
@@ -35,8 +35,9 @@ const statItems = [
 ]
 
 export default function Home() {
-  const { helpers, navigate, goTab, items } = useStore()
-  const [selectedDay, setSelectedDay] = useState(null)
+  const { helpers, navigate, goTab, items, settings } = useStore()
+  const [popover, setPopover] = useState(null)
+  const calendarHeaderRef = useRef(null)
   const { activeItems, soonItems, lowItems, expiredCount } = helpers
   const minuteItems = [...soonItems].sort((a, b) => helpers.daysLeft(a) - helpers.daysLeft(b)).slice(0, 3)
   const today = new Date()
@@ -73,10 +74,45 @@ export default function Home() {
     return 'normal'
   }
 
-  const selectedEvents = selectedDay ? eventsByDay[selectedDay] || [] : []
-  const selectedWeekday = selectedDay
-    ? new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(new Date(year, month - 1, selectedDay))
-    : ''
+  const selectedEvents = popover ? eventsByDay[popover.day] || [] : []
+
+  useEffect(() => {
+    if (!popover) return undefined
+    const closeOnOutside = (event) => {
+      if (event.target.closest('.calendar-popover') || event.target.closest('.month-day.has-events')) return
+      setPopover(null)
+    }
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setPopover(null)
+    }
+    document.addEventListener('pointerdown', closeOnOutside)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutside)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [popover])
+
+  const openDayPopover = (event, date) => {
+    if (popover?.day === date) {
+      setPopover(null)
+      return
+    }
+    const header = calendarHeaderRef.current
+    if (!header) return
+    const headerRect = header.getBoundingClientRect()
+    const cellRect = event.currentTarget.getBoundingClientRect()
+    const width = Math.min(286, headerRect.width - 14)
+    const anchorX = cellRect.left - headerRect.left + cellRect.width / 2
+    const left = Math.max(7, Math.min(anchorX - width / 2, headerRect.width - width - 7))
+    setPopover({
+      day: date,
+      left,
+      top: cellRect.bottom - headerRect.top + 10,
+      width,
+      arrowX: anchorX - left,
+    })
+  }
 
   const counts = {
     total: activeItems.length,
@@ -103,7 +139,7 @@ export default function Home() {
 
   return (
     <div className="page home-page">
-      <header className="home-header home-calendar-header">
+      <header className="home-header home-calendar-header" ref={calendarHeaderRef}>
         <div className="home-calendar-topbar">
           <BrandMark size={34} />
           <button className="icon-button settings-button" onClick={() => goTab('settings')} aria-label="打开设置">
@@ -147,8 +183,10 @@ export default function Home() {
                   type="button"
                   key={`${month}-${date}`}
                   className={`month-day has-events ${date === day ? 'is-today' : ''}`}
-                  onClick={() => setSelectedDay(date)}
+                  onClick={(event) => openDayPopover(event, date)}
                   aria-label={dayLabel}
+                  aria-expanded={popover?.day === date}
+                  aria-controls="calendar-date-popover"
                   title={events.map((item) => item.name).join('、')}
                 >
                   {content}
@@ -166,6 +204,47 @@ export default function Home() {
           </div>
           <p className="home-calendar-tagline">Everything, kept with care.</p>
         </div>
+        {popover && selectedEvents.length > 0 && (
+          <div
+            className="calendar-popover"
+            id="calendar-date-popover"
+            role="dialog"
+            aria-label={`${month}月${popover.day}日的物品`}
+            style={{
+              left: `${popover.left}px`,
+              top: `${popover.top}px`,
+              width: `${popover.width}px`,
+              '--arrow-x': `${popover.arrowX}px`,
+            }}
+          >
+            <button className="calendar-popover-close" onClick={() => setPopover(null)} aria-label="关闭">
+              <X size={13} />
+            </button>
+            <div className="calendar-popover-list">
+              {selectedEvents.map((item) => {
+                const itemLocation = findLocation(item.location)
+                return (
+                  <div className="calendar-popover-item" key={item.id}>
+                    <span className={`calendar-popover-dot tone-${eventTone(item)}`} />
+                    <div className="calendar-popover-copy">
+                      <strong>{item.name}</strong>
+                      <span className="calendar-popover-meta">
+                        <span>
+                          <MapPin size={12} />
+                          {itemLocation.name}
+                        </span>
+                        <span>
+                          <CalendarDays size={12} />
+                          {formatDate(item.expiryDate, settings.dateFormat)}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </header>
 
       <section className="overview-card glass-card">
@@ -267,30 +346,7 @@ export default function Home() {
         </button>
       </section>
 
-      <Sheet
-        open={selectedDay !== null}
-        onClose={() => setSelectedDay(null)}
-        title={selectedDay ? `${month}月${selectedDay}日` : ''}
-      >
-        <div className="calendar-day-list">
-          {selectedEvents.map((item) => {
-            const itemStatus = helpers.statusFor(item)
-            return (
-              <ItemRow
-                key={item.id}
-                item={item}
-                status={itemStatus}
-                onClick={() => {
-                  const isTrash = helpers.isTrash(item)
-                  setSelectedDay(null)
-                  if (isTrash) navigate('trash')
-                  else navigate('item', { id: item.id })
-                }}
-              />
-            )
-          })}
-        </div>
-      </Sheet>
+
 
     </div>
   )
