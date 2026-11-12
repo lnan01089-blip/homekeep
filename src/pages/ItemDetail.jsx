@@ -70,8 +70,9 @@ export default function ItemDetail() {
   const days = helpers.daysLeft(item)
   const image = getItemImage(item)
   const retained = helpers.isRetainedExpired(item)
-  const expired = days !== null && days < 0
-  const soon = days !== null && days >= 0 && days <= settings.defaultAdvance
+  const expired = helpers.isExpiredByDate(item)
+  const soon = !expired && days !== null && days >= 0 && days <= settings.defaultAdvance
+  const quantityMissing = item.quantity === null || item.quantity === undefined || item.quantity === ''
   const expiryTone = retained || expired ? 'expired' : soon ? 'soon' : item.expiryDate ? 'normal' : 'neutral'
   const afterOpenDate =
     item.openedDate && item.afterOpenDays
@@ -87,6 +88,7 @@ export default function ItemDetail() {
   const expiryHeadline = (() => {
     if (item.expiryDate === null || item.expiryDate === undefined) return '长期保存'
     if (days < 0) return `已过期 ${Math.abs(days)} 天`
+    if (expired) return '今天已过期'
     if (days === 0) return '今天到期'
     return `还有 ${days} 天`
   })()
@@ -149,10 +151,12 @@ export default function ItemDetail() {
             <h1>{item.name}</h1>
             <p>{item.spec || category.name}</p>
           </div>
-          <span className="identity-quantity">
-            <strong>{item.quantity}</strong>
-            <small>{item.unit}</small>
-          </span>
+          {!quantityMissing && (
+            <span className="identity-quantity">
+              <strong>{item.quantity}</strong>
+              {item.unit ? <small>{item.unit}</small> : null}
+            </span>
+          )}
         </div>
       </div>
 
@@ -169,6 +173,7 @@ export default function ItemDetail() {
             {item.expiryDate && (
               <small>
                 {formatDate(item.expiryDate, settings.dateFormat)}
+                {item.expiryTime ? ` ${item.expiryTime}` : ''}
                 {retained && ' · 已保留'}
               </small>
             )}
@@ -230,14 +235,14 @@ export default function ItemDetail() {
           </div>
           <span className={`stock-indicator ${helpers.isLowStock(item) ? 'is-low' : ''}`}>
             <span />
-            {helpers.isLowStock(item) ? '需要补充' : '存量充足'}
+            {quantityMissing ? '数量未记录' : helpers.isLowStock(item) ? '需要补充' : '存量充足'}
           </span>
         </div>
         <QuantityStepper
           value={item.quantity}
           unit={item.unit}
           min={0}
-          onChange={(next) => adjustQuantity(item.id, next - Number(item.quantity))}
+          onChange={(next) => adjustQuantity(item.id, next - (Number(item.quantity) || 0))}
         />
         {helpers.isLowStock(item) && (
           <p className="stock-note">
@@ -255,7 +260,12 @@ export default function ItemDetail() {
         <div className="info-list">
           <InfoRow label="物品分类" icon={Sparkles} valueNode={category.name} />
           <InfoRow label="购买日期" icon={CalendarDays} value={item.purchaseDate ? formatDate(item.purchaseDate, settings.dateFormat) : '未记录'} muted={!item.purchaseDate} />
-          <InfoRow label="有效期" icon={AlarmClock} value={item.expiryDate ? formatDate(item.expiryDate, settings.dateFormat) : '未设置'} muted={!item.expiryDate} />
+          <InfoRow
+          label="有效期"
+          icon={AlarmClock}
+          value={item.expiryDate ? `${formatDate(item.expiryDate, settings.dateFormat)}${item.expiryTime ? ` ${item.expiryTime}` : ''}` : '未设置'}
+          muted={!item.expiryDate}
+        />
           <InfoRow label="开封日期" icon={Clock3} value={item.openedDate ? formatDate(item.openedDate, settings.dateFormat) : '未开封'} muted={!item.openedDate} />
           <InfoRow
             label="开封后使用期限"

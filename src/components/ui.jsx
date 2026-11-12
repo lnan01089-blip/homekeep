@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleAlert,
+  Clock3,
   Coffee,
   Cookie,
   CupSoda,
@@ -181,10 +182,11 @@ export function StatusPill({ status, dot = false, className = '' }) {
 }
 
 export function QtyPill({ item }) {
+  if (item.quantity === null || item.quantity === undefined || item.quantity === '') return null
   return (
     <span className="qty-pill">
       {item.quantity}
-      {item.unit}
+      {item.unit || ''}
     </span>
   )
 }
@@ -277,6 +279,8 @@ export function ItemRow({
   const category = findCategory(item.category)
   const location = findLocation(item.location)
   const { settings } = useStore()
+  const quantityMissing = item.quantity === null || item.quantity === undefined || item.quantity === ''
+  const quantityLabel = quantityMissing ? '' : `${item.quantity}${item.unit || ''}`
   return (
     <button className={`item-row ${compact ? 'is-compact' : ''} ${className}`} onClick={onClick}>
       <ProductMedia item={item} size={compact ? 58 : 64} />
@@ -289,21 +293,18 @@ export function ItemRow({
           <span>{category.name}</span>
           <i />
           <span>{location.name}</span>
-          {!compact && (
+          {!compact && quantityLabel && (
             <>
               <i />
-              <span>
-                {item.quantity}
-                {item.unit}
-              </span>
+              <span>{quantityLabel}</span>
             </>
           )}
         </span>
         <span className="item-expiry">
           {status?.code === 'expired' || status?.code === 'retained'
-            ? `有效期 ${formatDate(item.expiryDate, settings.dateFormat)} · 已过期`
+            ? `有效期 ${formatDate(item.expiryDate, settings.dateFormat)}${item.expiryTime ? ` ${item.expiryTime}` : ''} · 已过期`
             : item.expiryDate
-              ? `有效期至 ${formatDate(item.expiryDate, settings.dateFormat)}`
+              ? `有效期至 ${formatDate(item.expiryDate, settings.dateFormat)}${item.expiryTime ? ` ${item.expiryTime}` : ''}`
               : '未设置有效期 · 长期保存'}
         </span>
       </span>
@@ -313,22 +314,29 @@ export function ItemRow({
 }
 
 export function QuantityStepper({ value, unit, onChange, min = 0, size = 'normal' }) {
+  const missing = value === null || value === undefined || value === ''
+  const numericValue = missing ? null : Number(value)
   return (
     <div className={`quantity-stepper size-${size}`}>
       <button
         type="button"
         className="step-button"
-        onClick={() => onChange(Math.max(min, Number(value) - 1))}
+        onClick={() => onChange(Math.max(min, (numericValue ?? min) - 1))}
         aria-label="减少数量"
-        disabled={Number(value) <= min}
+        disabled={missing || numericValue <= min}
       >
         <Minus size={18} />
       </button>
       <span className="quantity-value">
-        <strong>{value}</strong>
-        <span>{unit}</span>
+        <strong>{missing ? '—' : value}</strong>
+        {unit ? <span>{unit}</span> : null}
       </span>
-      <button type="button" className="step-button plus" onClick={() => onChange(Number(value) + 1)} aria-label="增加数量">
+      <button
+        type="button"
+        className="step-button plus"
+        onClick={() => onChange((numericValue ?? min) + 1)}
+        aria-label="增加数量"
+      >
         <Plus size={18} />
       </button>
     </div>
@@ -634,6 +642,96 @@ export function DatePickerSheet({ open, onClose, value, onSelect, title = '选�
           }}
         >
           选择今天
+        </button>
+      </div>
+    </Sheet>
+  )
+}
+
+export function TimePickerSheet({ open, onClose, value, onSelect, title = '选择时间' }) {
+  const [hour, setHour] = useState('23')
+  const [minute, setMinute] = useState('59')
+
+  useEffect(() => {
+    if (!open) return
+    const [nextHour, nextMinute] = (value || '23:59').split(':')
+    setHour(nextHour || '23')
+    setMinute(nextMinute || '59')
+  }, [open, value])
+
+  const clampPart = (raw, max) => {
+    if (raw === '') return ''
+    const number = Math.max(0, Math.min(max, Number(raw) || 0))
+    return `${Math.round(number)}`.padStart(2, '0')
+  }
+
+  const commit = () => {
+    const hours = Math.max(0, Math.min(23, Number(hour) || 0))
+    const minutes = Math.max(0, Math.min(59, Number(minute) || 0))
+    onSelect(`${`${hours}`.padStart(2, '0')}:${`${minutes}`.padStart(2, '0')}`)
+    onClose()
+  }
+
+  return (
+    <Sheet open={open} onClose={onClose} title={title}>
+      <div className="time-picker-preview">
+        <Clock3 size={19} />
+        <span>{hour || '--'}</span>
+        <em>:</em>
+        <span>{minute || '--'}</span>
+      </div>
+      <div className="time-input-row">
+        <label>
+          <span>小时</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="23"
+            value={hour}
+            onChange={(event) => setHour(clampPart(event.target.value, 23))}
+          />
+        </label>
+        <span className="time-colon">:</span>
+        <label>
+          <span>分钟</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="59"
+            value={minute}
+            onChange={(event) => setMinute(clampPart(event.target.value, 59))}
+          />
+        </label>
+      </div>
+      <div className="time-presets">
+        {['09:00', '12:00', '18:00', '23:59'].map((time) => (
+          <button
+            key={time}
+            className={`${`${hour.padStart(2, '0')}`}:${minute.padStart(2, '0')}` === time ? 'is-active' : ''}
+            onClick={() => {
+              const [h, m] = time.split(':')
+              setHour(h)
+              setMinute(m)
+            }}
+          >
+            {time}
+          </button>
+        ))}
+      </div>
+      <div className="time-sheet-actions">
+        <button
+          className="text-button subtle"
+          onClick={() => {
+            onSelect('')
+            onClose()
+          }}
+        >
+          清除时间
+        </button>
+        <button className="time-confirm-button" onClick={commit}>
+          确定
         </button>
       </div>
     </Sheet>

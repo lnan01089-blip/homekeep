@@ -92,7 +92,7 @@ export default function Trash() {
                       </span>
                       <span className="trash-date">
                         <Clock3 size={12} />
-                        有效期 {formatDate(item.expiryDate, settings.dateFormat)}
+                        有效期 {formatDate(item.expiryDate, settings.dateFormat)}{item.expiryTime ? ` ${item.expiryTime}` : ''}
                       </span>
                     </span>
                     <ChevronRight size={16} className="trash-chevron" />

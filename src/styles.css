@@ -8037,3 +8037,138 @@ button:disabled {
 .calendar-popover-meta svg {
   color: #a0ada2;
 }
+
+/* Custom inline unit + expiry time picker */
+.unit-input-wrap {
+  height: 43px;
+  padding: 0 11px;
+}
+
+.unit-input-wrap input {
+  width: 100%;
+  color: #536058;
+  font-size: 12.5px;
+}
+
+.time-picker-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 2px 0 14px;
+  color: #62756a;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-picker-preview svg {
+  margin-right: 4px;
+  color: #96ab9c;
+}
+
+.time-picker-preview span {
+  min-width: 53px;
+  padding: 8px 9px;
+  border: 1px solid rgba(111, 150, 130, 0.1);
+  border-radius: 13px;
+  background: rgba(232, 241, 234, 0.55);
+  font-size: 30px;
+  font-weight: 520;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.time-picker-preview em {
+  color: #9aa59d;
+  font-size: 22px;
+  font-style: normal;
+}
+
+.time-input-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+.time-input-row label {
+  display: flex;
+  width: 104px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.time-input-row label > span {
+  color: #929b93;
+  font-size: 10px;
+  text-align: center;
+}
+
+.time-input-row input {
+  width: 100%;
+  height: 43px;
+  padding: 0 8px;
+  border: 1px solid rgba(66, 77, 71, 0.08);
+  border-radius: 12px;
+  color: #59665d;
+  background: rgba(249, 247, 241, 0.72);
+  font-size: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.time-input-row input::-webkit-outer-spin-button,
+.time-input-row input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.time-colon {
+  padding-bottom: 12px;
+  color: #9ca59d;
+  font-size: 18px;
+}
+
+.time-presets {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 13px;
+}
+
+.time-presets button {
+  height: 31px;
+  padding: 0 10px;
+  border: 1px solid rgba(66, 77, 71, 0.07);
+  border-radius: 9px;
+  color: #8d978f;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
+}
+
+.time-presets button.is-active {
+  border-color: rgba(111, 150, 130, 0.2);
+  color: #657f6e;
+  background: #e9f2ec;
+}
+
+.time-sheet-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 17px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(66, 77, 71, 0.06);
+}
+
+.time-confirm-button {
+  height: 37px;
+  padding: 0 22px;
+  border-radius: 11px;
+  color: #f9fcf8;
+  background: linear-gradient(145deg, #86a894, #6f9682);
+  box-shadow: 0 5px 14px rgba(80, 113, 93, 0.15);
+  font-size: 11px;
+  font-weight: 600;
+}

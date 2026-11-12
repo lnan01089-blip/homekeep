@@ -235,7 +235,7 @@ export default function Home() {
                         </span>
                         <span>
                           <CalendarDays size={12} />
-                          {formatDate(item.expiryDate, settings.dateFormat)}
+                          {formatDate(item.expiryDate, settings.dateFormat)}{item.expiryTime ? ` ${item.expiryTime}` : ''}
                         </span>
                       </span>
                     </div>

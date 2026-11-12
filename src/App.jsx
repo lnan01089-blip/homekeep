@@ -181,7 +181,6 @@ function PhoneShell() {
     route,
     stack,
     showTabBar,
-    isFullScreen,
     confirmState,
     resolveConfirm,
     toastState,
@@ -198,7 +197,7 @@ function PhoneShell() {
         className={`phone-shell ${showTabBar ? 'has-tabbar' : ''} ${hasFixedAction ? 'has-fixed-action' : ''} ${isScan ? 'is-scanning' : ''}`}
       >
         <StatusBar light={isScan} />
-        <main className={`app-scroll ${isFullScreen ? 'is-fullscreen' : ''}`}>
+        <main className={`app-scroll ${isScan ? 'is-fullscreen' : ''}`}>
           <div
             className="route-transition"
             key={`${route.name}-${route.params?.id || ''}-${stack.length}`}

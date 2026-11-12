@@ -4,6 +4,7 @@ import {
   dateKey,
   daysUntil,
   defaultSettings,
+  parseDate,
   seedItems,
 } from './data'
 
@@ -195,14 +196,27 @@ export function StoreProvider({ children }) {
   const helpers = useMemo(() => {
     const daysLeft = (item) => daysUntil(item.expiryDate)
     const isExpiredByDate = (item) => {
+      if (!item.expiryDate) return false
+      if (item.expiryTime) {
+        const [hours, minutes] = item.expiryTime.split(':').map(Number)
+        const expiry = parseDate(item.expiryDate)
+        expiry.setHours(Number.isFinite(hours) ? hours : 23, Number.isFinite(minutes) ? minutes : 59, 59, 999)
+        return expiry.getTime() < Date.now()
+      }
       const d = daysLeft(item)
       return d !== null && d < 0
     }
     const isTrash = (item) => isExpiredByDate(item) && !item.retained
     const isRetainedExpired = (item) => isExpiredByDate(item) && item.retained
-    const isLowStock = (item) =>
-      Number(item.quantity) === 0 ||
-      (item.lowStockAt !== null && item.lowStockAt !== undefined && Number(item.quantity) < item.lowStockAt)
+    const isLowStock = (item) => {
+      const quantityMissing =
+        item.quantity === null || item.quantity === undefined || item.quantity === ''
+      if (quantityMissing) return false
+      return (
+        Number(item.quantity) === 0 ||
+        (item.lowStockAt !== null && item.lowStockAt !== undefined && Number(item.quantity) < item.lowStockAt)
+      )
+    }
     const isSoon = (item) => {
       const d = daysLeft(item)
       return !isExpiredByDate(item) && d !== null && d >= 0 && d <= settings.defaultAdvance

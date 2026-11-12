@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import {
   CalendarDays,
   Check,
@@ -20,7 +20,6 @@ import {
   formatDate,
   locations,
   parseDate,
-  units,
 } from '../data'
 import { useStore } from '../store'
 import {
@@ -32,16 +31,18 @@ import {
   LocationSelectRender,
   ProductMedia,
   SelectSheet,
+  TimePickerSheet,
 } from '../components/ui'
 
 const blankForm = {
   name: '',
   category: 'food',
-  quantity: 1,
-  unit: '个',
+  quantity: '',
+  unit: '',
   location: 'fridge',
   purchaseDate: '',
   expiryDate: '',
+  expiryTime: '',
   openedDate: '',
   afterOpenDays: '',
   note: '',
@@ -77,11 +78,12 @@ export default function ItemForm() {
       return {
         name: editingItem.name || '',
         category: editingItem.category || 'food',
-        quantity: editingItem.quantity ?? 1,
-        unit: editingItem.unit || '个',
+        quantity: editingItem.quantity ?? '',
+        unit: editingItem.unit || '',
         location: editingItem.location || 'fridge',
         purchaseDate: editingItem.purchaseDate || '',
         expiryDate: editingItem.expiryDate || '',
+        expiryTime: editingItem.expiryTime || '',
         openedDate: editingItem.openedDate || '',
         afterOpenDays: editingItem.afterOpenDays ? String(editingItem.afterOpenDays) : '',
         note: editingItem.note || '',
@@ -92,25 +94,13 @@ export default function ItemForm() {
         ...blankForm,
         name: '鲜牛奶',
         category: 'food',
-        quantity: 1,
-        unit: '瓶',
         location: 'fridge',
-        purchaseDate: '',
-        expiryDate: '',
-        openedDate: '',
-        afterOpenDays: '',
-        note: '',
       }
     }
     return {
       ...blankForm,
       category: route.params?.category || 'food',
       location: route.params?.location || 'fridge',
-      unit: route.params?.category
-        ? findCategory(route.params.category).id === 'food'
-          ? '个'
-          : '瓶'
-        : '个',
     }
   })
   const [sheet, setSheet] = useState(null)
@@ -162,9 +152,6 @@ export default function ItemForm() {
     if (!form.name.trim()) nextErrors.name = '请填写物品名称'
     if (!form.category) nextErrors.category = '请选择分类'
     if (!form.location) nextErrors.location = '请选择位置'
-    if (form.quantity === '' || Number(form.quantity) < 0 || Number.isNaN(Number(form.quantity))) {
-      nextErrors.quantity = '请输入有效数量'
-    }
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)
       toast('还有信息需要补充')
@@ -173,17 +160,21 @@ export default function ItemForm() {
     const payload = {
       name: form.name.trim(),
       category: form.category,
-      quantity: Number(form.quantity),
-      unit: form.unit,
+      quantity:
+        form.quantity === '' || form.quantity === null || Number.isNaN(Number(form.quantity))
+          ? null
+          : Math.max(0, Number(form.quantity)),
+      unit: form.unit.trim(),
       location: form.location,
       purchaseDate: form.purchaseDate || null,
       expiryDate: form.expiryDate || null,
+      expiryTime: form.expiryDate && form.expiryTime ? form.expiryTime : null,
       openedDate: form.openedDate || null,
       afterOpenDays: form.afterOpenDays ? Number(form.afterOpenDays) : null,
       note: form.note.trim(),
       imageKey,
       imageUrl: photoUrl || null,
-      spec: editingItem?.spec || (scanned ? '全脂鲜牛奶 · 950ml' : `${category.name} · ${form.unit}`),
+      spec: editingItem?.spec || (scanned ? '全脂鲜牛奶 · 950ml' : form.unit ? `${category.name} · ${form.unit}` : category.name),
       glyph: editingItem?.glyph || (scanned ? 'milk' : form.category),
       accent: editingItem?.accent || category.tint,
     }
@@ -275,7 +266,7 @@ export default function ItemForm() {
           <div>
             <strong>已识别基础信息</strong>
           </div>
-                  </div>
+        </div>
       )}
 
       <section className="form-section">
@@ -326,15 +317,13 @@ export default function ItemForm() {
         </div>
 
         <div className="form-two-columns">
-          <div className={`form-field ${errors.quantity ? 'has-error' : ''}`}>
-            <span className="form-label">
-              数量 <em>必填</em>
-            </span>
+          <div className="form-field">
+            <span className="form-label">数量</span>
             <div className="number-field">
               <button
                 type="button"
                 onClick={() => setField('quantity', Math.max(0, Number(form.quantity) - 1))}
-                disabled={Number(form.quantity) <= 0}
+                disabled={form.quantity === '' || Number(form.quantity) <= 0}
                 aria-label="减少数量"
               >
                 −
@@ -344,25 +333,29 @@ export default function ItemForm() {
                 inputMode="numeric"
                 min="0"
                 value={form.quantity}
+                placeholder="—"
                 onChange={(event) => setField('quantity', event.target.value)}
               />
               <button
                 type="button"
-                onClick={() => setField('quantity', Number(form.quantity || 0) + 1)}
+                onClick={() => setField('quantity', form.quantity === '' ? 1 : Number(form.quantity) + 1)}
                 aria-label="增加数量"
               >
                 +
               </button>
             </div>
-            {errors.quantity && <span className="field-error">{errors.quantity}</span>}
           </div>
 
           <div className="form-field">
             <span className="form-label">单位</span>
-            <button className="form-select compact" onClick={() => setSheet('unit')}>
-              <span>{form.unit}</span>
-              <ChevronDown size={16} />
-            </button>
+            <div className="text-input-wrap unit-input-wrap">
+              <input
+                value={form.unit}
+                onChange={(event) => setField('unit', event.target.value)}
+                placeholder="如：瓶"
+                maxLength={8}
+              />
+            </div>
           </div>
         </div>
 
@@ -400,34 +393,77 @@ export default function ItemForm() {
 
         <div className="date-fields-stack">
           {Object.entries(dateFieldMeta).map(([key, label]) => (
-            <div className="form-field" key={key}>
-              <span className="form-label">{label}</span>
-              <button
-                className={`date-field ${form[key] ? 'has-date' : ''}`}
-                onClick={() => openDate(key)}
-              >
-                <span>
-                  <CalendarDays size={17} />
-                  {form[key] ? formatDate(form[key], settings.dateFormat) : `选择${label}`}
-                </span>
-                {form[key] ? (
-                  <span
-                    className="date-clear"
-                    role="button"
-                    tabIndex={0}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setField(key, '')
-                    }}
-                    onKeyDown={(event) => event.key === 'Enter' && setField(key, '')}
-                  >
-                    <X size={14} />
+            <Fragment key={key}>
+              <div className="form-field">
+                <span className="form-label">{label}</span>
+                <button
+                  className={`date-field ${form[key] ? 'has-date' : ''}`}
+                  onClick={() => openDate(key)}
+                >
+                  <span>
+                    <CalendarDays size={17} />
+                    {form[key] ? formatDate(form[key], settings.dateFormat) : `选择${label}`}
                   </span>
-                ) : (
-                  <ChevronRight size={16} />
-                )}
-              </button>
-            </div>
+                  {form[key] ? (
+                    <span
+                      className="date-clear"
+                      role="button"
+                      tabIndex={0}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        if (key === 'expiryDate') {
+                          setForm((current) => ({ ...current, expiryDate: '', expiryTime: '' }))
+                        } else {
+                          setField(key, '')
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key !== 'Enter') return
+                        if (key === 'expiryDate') {
+                          setForm((current) => ({ ...current, expiryDate: '', expiryTime: '' }))
+                        } else {
+                          setField(key, '')
+                        }
+                      }}
+                    >
+                      <X size={14} />
+                    </span>
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </button>
+              </div>
+              {key === 'expiryDate' && (
+                <div className="form-field">
+                  <span className="form-label">有效期时间</span>
+                  <button
+                    className={`date-field ${form.expiryTime ? 'has-date' : ''}`}
+                    onClick={() => setSheet('expiryTime')}
+                  >
+                    <span>
+                      <Clock3 size={17} />
+                      {form.expiryTime || '选择时间'}
+                    </span>
+                    {form.expiryTime ? (
+                      <span
+                        className="date-clear"
+                        role="button"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setField('expiryTime', '')
+                        }}
+                        onKeyDown={(event) => event.key === 'Enter' && setField('expiryTime', '')}
+                      >
+                        <X size={14} />
+                      </span>
+                    ) : (
+                      <ChevronRight size={16} />
+                    )}
+                  </button>
+                </div>
+              )}
+            </Fragment>
           ))}
         </div>
 
@@ -542,16 +578,6 @@ export default function ItemForm() {
         onSelect={(value) => setField('location', value)}
       />
 
-      <SelectSheet
-        open={sheet === 'unit'}
-        onClose={() => setSheet(null)}
-        title="选择单位"
-        options={units.map((unit) => ({ value: unit, label: unit }))}
-        value={form.unit}
-        onSelect={(value) => setField('unit', value)}
-        columns={2}
-      />
-
       <DatePickerSheet
         open={Boolean(sheet && dateFieldMeta[sheet])}
         onClose={() => setSheet(null)}
@@ -560,6 +586,14 @@ export default function ItemForm() {
         onSelect={(value) => {
           if (sheet && dateFieldMeta[sheet]) setField(sheet, value)
         }}
+      />
+
+      <TimePickerSheet
+        open={sheet === 'expiryTime'}
+        onClose={() => setSheet(null)}
+        title="有效期时间"
+        value={form.expiryTime}
+        onSelect={(value) => setField('expiryTime', value)}
       />
     </div>
   )

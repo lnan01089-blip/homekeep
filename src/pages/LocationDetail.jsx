@@ -49,7 +49,14 @@ export default function LocationDetail() {
       })
       .sort((a, b) => {
         if (sort === 'added') return (b.createdAt || '').localeCompare(a.createdAt || '')
-        if (sort === 'quantity') return Number(a.quantity) - Number(b.quantity)
+        if (sort === 'quantity') {
+          const aMissing = a.quantity === null || a.quantity === undefined || a.quantity === ''
+          const bMissing = b.quantity === null || b.quantity === undefined || b.quantity === ''
+          if (aMissing && bMissing) return 0
+          if (aMissing) return 1
+          if (bMissing) return -1
+          return Number(a.quantity) - Number(b.quantity)
+        }
         const da = helpers.daysLeft(a)
         const db = helpers.daysLeft(b)
         if (da === null) return 1

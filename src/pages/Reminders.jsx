@@ -35,7 +35,7 @@ function ReminderCard({ item, type, onOpen, onQuickAction, quickLabel }) {
     ? {
         icon: AlarmClock,
         label: expiryDays === 0 ? '今天到期' : `${Math.max(0, expiryDays ?? 0)} 天后到期`,
-        detail: item.expiryDate ? `${formatDate(item.expiryDate, settings.dateFormat)} 到期 · 请优先使用` : '',
+        detail: item.expiryDate ? `${formatDate(item.expiryDate, settings.dateFormat)}${item.expiryTime ? ` ${item.expiryTime}` : ''} 到期 · 请优先使用` : '',
         tone: 'soon',
       }
     : type === 'low'
