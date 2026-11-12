@@ -7826,3 +7826,77 @@ button:disabled {
   margin-top: 8px;
   border-top: 1px solid rgba(66, 77, 71, 0.055);
 }
+
+/* Calendar item markers */
+.month-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 1px 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+}
+
+.month-day-number {
+  line-height: 1.15;
+}
+
+.month-day.has-events {
+  cursor: pointer;
+}
+
+.month-day.has-events:hover,
+.month-day.has-events:focus-visible {
+  background: rgba(220, 233, 226, 0.45);
+}
+
+.month-day.is-today.has-events:hover,
+.month-day.is-today.has-events:focus-visible {
+  background: #6f927e;
+}
+
+.month-day-dots {
+  display: flex;
+  height: 4px;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.month-event-dot {
+  display: block;
+  width: 3px;
+  height: 3px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.month-event-dot.tone-expired {
+  background: #b9766d;
+}
+
+.month-event-dot.tone-soon {
+  background: #c4935f;
+}
+
+.month-event-dot.tone-normal {
+  background: #9db6a4;
+}
+
+.month-day.is-today .month-event-dot {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.48);
+}
+
+.calendar-day-list {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(66, 77, 71, 0.055);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.calendar-day-list .item-row + .item-row {
+  border-top: 1px solid rgba(66, 77, 71, 0.06);
+}

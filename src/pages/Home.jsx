@@ -1,7 +1,8 @@
+import { useMemo, useState } from 'react'
 import { ChevronRight, Plus, Settings2, Sparkles } from 'lucide-react'
 import { categories } from '../data'
 import { useStore } from '../store'
-import { BrandMark, CategoryIcon, ItemRow, SectionHeader } from '../components/ui'
+import { BrandMark, CategoryIcon, ItemRow, SectionHeader, Sheet } from '../components/ui'
 
 function MiniHomeDoodle() {
   return (
@@ -34,7 +35,8 @@ const statItems = [
 ]
 
 export default function Home() {
-  const { helpers, navigate, goTab } = useStore()
+  const { helpers, navigate, goTab, items } = useStore()
+  const [selectedDay, setSelectedDay] = useState(null)
   const { activeItems, soonItems, lowItems, expiredCount } = helpers
   const minuteItems = [...soonItems].sort((a, b) => helpers.daysLeft(a) - helpers.daysLeft(b)).slice(0, 3)
   const today = new Date()
@@ -49,6 +51,32 @@ export default function Home() {
     ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
   ]
   while (calendarCells.length % 7 !== 0) calendarCells.push(null)
+
+  const monthKey = `${year}-${`${month}`.padStart(2, '0')}`
+  const eventsByDay = useMemo(() => {
+    const result = {}
+    items.forEach((item) => {
+      if (!item.expiryDate || !item.expiryDate.startsWith(monthKey)) return
+      const needsAttention =
+        helpers.isTrash(item) || helpers.isRetainedExpired(item) || helpers.isSoon(item)
+      if (!needsAttention) return
+      const dayNumber = Number(item.expiryDate.slice(8, 10))
+      if (!result[dayNumber]) result[dayNumber] = []
+      result[dayNumber].push(item)
+    })
+    return result
+  }, [items, monthKey, helpers])
+
+  const eventTone = (item) => {
+    if (helpers.isTrash(item) || helpers.isRetainedExpired(item)) return 'expired'
+    if (helpers.isSoon(item)) return 'soon'
+    return 'normal'
+  }
+
+  const selectedEvents = selectedDay ? eventsByDay[selectedDay] || [] : []
+  const selectedWeekday = selectedDay
+    ? new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(new Date(year, month - 1, selectedDay))
+    : ''
 
   const counts = {
     total: activeItems.length,
@@ -96,19 +124,45 @@ export default function Home() {
             ))}
           </div>
           <div className="month-grid" role="group" aria-label={`${year}年${month}月日历`}>
-            {calendarCells.map((date, index) =>
-              date ? (
+            {calendarCells.map((date, index) => {
+              if (!date) return <span key={`empty-${index}`} className="month-day is-empty" />
+              const events = eventsByDay[date] || []
+              const dayLabel = `${month}月${date}日${date === day ? `，${weekday}` : ''}${
+                events.length ? `，${events.map((item) => item.name).join('、')}` : ''
+              }`
+              const content = (
+                <>
+                  <span className="month-day-number">{date}</span>
+                  {events.length > 0 && (
+                    <span className="month-day-dots" aria-hidden="true">
+                      {events.slice(0, 3).map((item, dotIndex) => (
+                        <i key={`${item.id}-${dotIndex}`} className={`month-event-dot tone-${eventTone(item)}`} />
+                      ))}
+                    </span>
+                  )}
+                </>
+              )
+              return events.length ? (
+                <button
+                  type="button"
+                  key={`${month}-${date}`}
+                  className={`month-day has-events ${date === day ? 'is-today' : ''}`}
+                  onClick={() => setSelectedDay(date)}
+                  aria-label={dayLabel}
+                  title={events.map((item) => item.name).join('、')}
+                >
+                  {content}
+                </button>
+              ) : (
                 <span
                   key={`${month}-${date}`}
                   className={`month-day ${date === day ? 'is-today' : ''}`}
-                  aria-label={`${month}月${date}日${date === day ? `，${weekday}` : ''}`}
+                  aria-label={dayLabel}
                 >
-                  {date}
+                  {content}
                 </span>
-              ) : (
-                <span key={`empty-${index}`} className="month-day is-empty" />
-              ),
-            )}
+              )
+            })}
           </div>
           <p className="home-calendar-tagline">Everything, kept with care.</p>
         </div>
@@ -212,6 +266,31 @@ export default function Home() {
           <ChevronRight size={18} />
         </button>
       </section>
+
+      <Sheet
+        open={selectedDay !== null}
+        onClose={() => setSelectedDay(null)}
+        title={selectedDay ? `${month}月${selectedDay}日` : ''}
+      >
+        <div className="calendar-day-list">
+          {selectedEvents.map((item) => {
+            const itemStatus = helpers.statusFor(item)
+            return (
+              <ItemRow
+                key={item.id}
+                item={item}
+                status={itemStatus}
+                onClick={() => {
+                  const isTrash = helpers.isTrash(item)
+                  setSelectedDay(null)
+                  if (isTrash) navigate('trash')
+                  else navigate('item', { id: item.id })
+                }}
+              />
+            )
+          })}
+        </div>
+      </Sheet>
 
     </div>
   )
