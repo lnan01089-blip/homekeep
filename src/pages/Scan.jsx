@@ -1,38 +1,144 @@
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Camera,
-  Check,
-  ChevronLeft,
   Flashlight,
   Image as ImageIcon,
+  RefreshCw,
   RotateCcw,
-  ScanBarcode,
-  ScanLine,
-  Sparkles,
   X,
   Zap,
 } from 'lucide-react'
-import milkImg from '../assets/products/milk.jpg'
 import pantryImg from '../assets/products/pantry.jpg'
 import { useStore } from '../store'
 
 export default function Scan() {
   const { back, navigate, toast } = useStore()
   const [mode, setMode] = useState('camera')
-  const [flash, setFlash] = useState(false)
-  const [lightOn, setLightOn] = useState(false)
   const [capturedImage, setCapturedImage] = useState(null)
+  const [cameraState, setCameraState] = useState('requesting')
+  const [cameraError, setCameraError] = useState('')
+  const [attempt, setAttempt] = useState(0)
+  const [torchAvailable, setTorchAvailable] = useState(false)
+  const [torchOn, setTorchOn] = useState(false)
   const [flashFrame, setFlashFrame] = useState(false)
+  const videoRef = useRef(null)
+  const streamRef = useRef(null)
   const fileRef = useRef(null)
 
+  const stopCamera = useCallback(() => {
+    const stream = streamRef.current
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
+    }
+    if (videoRef.current) videoRef.current.srcObject = null
+    setTorchOn(false)
+    setTorchAvailable(false)
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    if (mode !== 'camera') {
+      stopCamera()
+      return undefined
+    }
+
+    const openCamera = async () => {
+      setCameraState('requesting')
+      setCameraError('')
+      if (!navigator.mediaDevices?.getUserMedia) {
+        if (!cancelled) {
+          setCameraState('unavailable')
+          setCameraError('当前浏览器不支持相机')
+        }
+        return
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        })
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop())
+          return
+        }
+        streamRef.current = stream
+        const track = stream.getVideoTracks()[0]
+        const capabilities = track?.getCapabilities?.()
+        setTorchAvailable(Boolean(capabilities?.torch))
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          await videoRef.current.play().catch(() => {})
+        }
+        setCameraState('live')
+      } catch (error) {
+        if (cancelled) return
+        const name = error?.name || ''
+        if (name === 'NotAllowedError' || name === 'SecurityError') {
+          setCameraState('denied')
+          setCameraError('请在浏览器设置中允许相机权限')
+        } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+          setCameraState('unavailable')
+          setCameraError('未检测到可用相机')
+        } else if (name === 'NotReadableError') {
+          setCameraState('unavailable')
+          setCameraError('相机正被其他应用占用')
+        } else {
+          setCameraState('unavailable')
+          setCameraError('相机暂时无法打开')
+        }
+      }
+    }
+
+    openCamera()
+    return () => {
+      cancelled = true
+      stopCamera()
+    }
+  }, [mode, attempt, stopCamera])
+
+  useEffect(() => () => stopCamera(), [stopCamera])
+
   const takePhoto = () => {
-    if (flashFrame) return
+    if (cameraState !== 'live' || flashFrame) return
+    const video = videoRef.current
+    if (!video || !video.videoWidth) {
+      toast('相机正在准备，请稍候')
+      return
+    }
     setFlashFrame(true)
-    setTimeout(() => setCapturedImage(milkImg), 80)
-    setTimeout(() => {
+    const canvas = document.createElement('canvas')
+    const scale = Math.min(1, 1280 / Math.max(video.videoWidth, video.videoHeight))
+    canvas.width = Math.round(video.videoWidth * scale)
+    canvas.height = Math.round(video.videoHeight * scale)
+    const context = canvas.getContext('2d')
+    context.drawImage(video, 0, 0, canvas.width, canvas.height)
+    const image = canvas.toDataURL('image/jpeg', 0.84)
+    window.setTimeout(() => {
+      setCapturedImage(image)
       setMode('preview')
       setFlashFrame(false)
-    }, 280)
+    }, 120)
+  }
+
+  const toggleTorch = async () => {
+    const track = streamRef.current?.getVideoTracks?.()[0]
+    if (!track || !torchAvailable) {
+      toast('当前设备没有可用闪光灯')
+      return
+    }
+    try {
+      const next = !torchOn
+      await track.applyConstraints({ advanced: [{ torch: next }] })
+      setTorchOn(next)
+    } catch {
+      toast('无法切换闪光灯')
+    }
   }
 
   const handleFile = (event) => {
@@ -48,20 +154,38 @@ export default function Scan() {
   }
 
   const confirmPhoto = () => {
+    stopCamera()
     navigate('add', {
       scanned: true,
       imageUrl: capturedImage,
       source: 'scan',
     })
-    toast('照片已导入，请确认识别结果', { duration: 2600 })
+    toast('照片已导入，请确认识别结果', { duration: 2400 })
   }
+
+  const retryCamera = () => {
+    stopCamera()
+    setAttempt((value) => value + 1)
+  }
+
+  const fallbackImage = mode === 'preview' && capturedImage ? capturedImage : pantryImg
 
   return (
     <div className={`scan-page ${mode === 'preview' ? 'is-preview' : ''}`}>
       <div
         className="camera-stage"
-        style={{ backgroundImage: `url(${mode === 'preview' ? capturedImage : pantryImg})` }}
+        style={{ backgroundImage: `url(${fallbackImage})` }}
       >
+        {mode === 'camera' && (
+          <video
+            ref={videoRef}
+            className={`camera-video ${cameraState === 'live' ? 'is-visible' : ''}`}
+            autoPlay
+            muted
+            playsInline
+            aria-label="相机实时画面"
+          />
+        )}
         <div className="camera-vignette" />
         <div className="camera-grain" />
         {flashFrame && <div className="camera-flash" />}
@@ -72,15 +196,11 @@ export default function Scan() {
           </button>
           <div className="scan-mode-label">
             <span />
-            智能扫描
+            扫描
           </div>
           <button
-            className={`scan-round-button ${lightOn ? 'is-on' : ''}`}
-            onClick={() => {
-              setLightOn((value) => !value)
-              setFlash(true)
-              setTimeout(() => setFlash(false), 180)
-            }}
+            className={`scan-round-button ${torchOn ? 'is-on' : ''}`}
+            onClick={toggleTorch}
             aria-label="切换闪光灯"
           >
             <Flashlight size={20} />
@@ -90,36 +210,41 @@ export default function Scan() {
         {mode === 'camera' ? (
           <>
             <div className="scan-instruction-top">
-              <span className="scan-ai-pill">
-                <Sparkles size={12} />
-                智能识别
-              </span>
-              <p>将物品包装或标签对准扫描框</p>
+              <p>将物品或标签对准取景框</p>
             </div>
 
             <div className="scanner-area">
-              <div className="scanner-frame">
+              <div className={`scanner-frame ${cameraState === 'live' ? 'is-live' : ''}`}>
                 <span className="corner tl" />
                 <span className="corner tr" />
                 <span className="corner bl" />
                 <span className="corner br" />
-                <span className="scan-line" />
-                <span className="scan-target-dot" />
+                {cameraState === 'live' && <span className="scan-line" />}
               </div>
-              <div className="scanner-float-tag">
-                <span className="tag-dot" />
-                正在寻找文字与日期…
-              </div>
-            </div>
 
-            <div className="scan-support-row">
-              <span>包装</span>
-              <i />
-              <span>产品标签</span>
-              <i />
-              <span>条形码</span>
-              <i />
-              <span>有效期</span>
+              {cameraState !== 'live' && (
+                <div className="camera-permission-card">
+                  <span className="camera-permission-icon">
+                    {cameraState === 'requesting' ? (
+                      <span className="camera-spinner" />
+                    ) : (
+                      <Camera size={20} />
+                    )}
+                  </span>
+                  <strong>
+                    {cameraState === 'requesting' ? '正在打开相机' : '无法访问相机'}
+                  </strong>
+                  {cameraState !== 'requesting' && (
+                    <>
+                      <p>{cameraError}</p>
+                      <button onClick={retryCamera}>
+                        <RefreshCw size={14} />
+                        重试
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="camera-controls">
@@ -129,34 +254,27 @@ export default function Scan() {
                 </span>
                 相册
               </button>
-              <button className="shutter-button" onClick={takePhoto} aria-label="拍照">
+              <button
+                className={`shutter-button ${cameraState !== 'live' ? 'is-disabled' : ''}`}
+                onClick={takePhoto}
+                disabled={cameraState !== 'live'}
+                aria-label="拍照"
+              >
                 <span className="shutter-inner">
                   <Camera size={24} />
                 </span>
               </button>
-              <button
-                className="scan-demo-button"
-                onClick={() => toast('这是模拟相机，点按快门即可体验完整流程')}
-              >
-                <ScanBarcode size={18} />
-                演示
-              </button>
+              <span />
             </div>
-            <p className="camera-disclaimer">第一版为模拟扫描，不会上传任何照片</p>
-            {flash && <div className="camera-flash soft" />}
-            <input type="file" accept="image/*" ref={fileRef} onChange={handleFile} hidden />
           </>
         ) : (
           <div className="photo-preview-overlay">
             <div className="preview-topbar">
-              <button className="scan-round-button" onClick={() => setMode('camera')} aria-label="重新拍摄">
-                <ChevronLeft size={21} />
+              <button className="scan-round-button" onClick={back} aria-label="关闭扫描">
+                <X size={21} />
               </button>
-              <div>
-                <span>照片预览</span>
-                <small>确认清晰后再继续</small>
-              </div>
-              <span className="preview-step">1 / 2</span>
+              <span>照片预览</span>
+              <span className="preview-top-spacer" />
             </div>
 
             <div className="preview-image-frame">
@@ -165,17 +283,9 @@ export default function Scan() {
               <span className="preview-corners tr" />
               <span className="preview-corners bl" />
               <span className="preview-corners br" />
-              <span className="preview-ready-tag">
-                <Check size={13} />
-                已为你拍下照片
-              </span>
             </div>
 
             <div className="preview-bottom">
-              <div className="preview-tip">
-                <ScanLine size={15} />
-                下一步会模拟识别物品信息，并打开添加物品页面
-              </div>
               <div className="preview-actions">
                 <button className="retake-button" onClick={() => setMode('camera')}>
                   <RotateCcw size={17} />
@@ -190,6 +300,7 @@ export default function Scan() {
           </div>
         )}
       </div>
+      <input type="file" accept="image/*" ref={fileRef} onChange={handleFile} hidden />
     </div>
   )
 }

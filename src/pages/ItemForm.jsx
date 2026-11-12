@@ -274,11 +274,9 @@ export default function ItemForm() {
             <Check size={16} />
           </span>
           <div>
-            <strong>已模拟识别 4 项信息</strong>
-            <p>请核对名称、数量、位置和日期后再保存。</p>
+            <strong>已识别 4 项信息</strong>
           </div>
-          <span className="scan-confidence">演示</span>
-        </div>
+                  </div>
       )}
 
       <section className="form-section">
@@ -537,7 +535,6 @@ export default function ItemForm() {
         open={sheet === 'location'}
         onClose={() => setSheet(null)}
         title="选择存放位置"
-        subtitle="之后也可以随时更换"
         options={locations.map((option) => ({
           value: option.id,
           render: <LocationSelectRender location={option} />,

@@ -64,7 +64,6 @@ export default function AllItems() {
         onBack={back}
         eyebrow="ALL THINGS, IN ONE PLACE"
         title="全部物品"
-        subtitle={`${items.length} 件物品，安静地待在家中`}
         right={
           <button className="icon-button solid" onClick={() => navigate('add')} aria-label="添加物品">
             <Plus size={20} />

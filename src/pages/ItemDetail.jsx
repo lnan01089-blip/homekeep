@@ -17,7 +17,6 @@ import { addDays, findCategory, findLocation, formatDate, parseDate, getItemImag
 import { useStore } from '../store'
 import {
   CategoryIcon,
-  Divider,
   FixedAction,
   InfoRow,
   LocationIcon,
@@ -143,10 +142,6 @@ export default function ItemDetail() {
             </span>
             <StatusPill status={status} className="hero-status" />
           </div>
-          <span className="item-hero-stamp">
-            <Sparkles size={12} />
-            {item.imageKey === 'milk' ? '在冰箱里，凉凉的' : '被认真记录着'}
-          </span>
         </div>
 
         <div className="item-identity">
@@ -302,14 +297,6 @@ export default function ItemDetail() {
         <p>{item.note || '还没有为这件物品写下备注。'}</p>
       </section>
 
-      <div className="detail-bottom-copy">
-        <span>
-          <MapPin size={13} />
-          {location.room} · {location.name}
-        </span>
-        <span>{settings.remindersOn ? `到期前 ${settings.defaultAdvance} 天提醒` : '提醒已关闭'}</span>
-      </div>
-
       <FixedAction withTabs>
         <button className="detail-delete-button" onClick={handleDelete} aria-label="删除物品">
           <Trash2 size={20} />
@@ -324,7 +311,6 @@ export default function ItemDetail() {
         open={locationOpen}
         onClose={() => setLocationOpen(false)}
         title="更换存放位置"
-        subtitle="物品会在新的空间继续被好好收纳"
       >
         <div className="select-list">
           {locations.map((option) => (
@@ -388,7 +374,6 @@ export default function ItemDetail() {
         </div>
       </Sheet>
 
-      <Divider />
     </div>
   )
 }

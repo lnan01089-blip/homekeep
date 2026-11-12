@@ -23,7 +23,6 @@ export default function Categories() {
         onBack={back}
         eyebrow="COLLECTIONS"
         title="物品分类"
-        subtitle="五类日常，各自有自己的位置"
         right={
           <button className="icon-button solid" onClick={() => navigate('add')} aria-label="添加物品">
             <Plus size={20} />

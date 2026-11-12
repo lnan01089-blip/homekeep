@@ -283,7 +283,6 @@ export default function Settings() {
         open={sheet === 'advance'}
         onClose={() => setSheet(null)}
         title="提前提醒天数"
-        subtitle="越早提醒，准备的时间越从容"
         options={advanceOptions}
         value={settings.defaultAdvance}
         onSelect={(value) => updateSettings({ defaultAdvance: Number(value) })}

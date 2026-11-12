@@ -84,14 +84,6 @@ export default function Items() {
             <ListFilter size={19} />
           </button>
         </div>
-        {!normalizedQuery && (
-          <div className="space-tip">
-            <span className="space-tip-pulse" />
-            <MapPinned size={15} />
-            <span>轻点家具或标签，看看里面收着什么</span>
-            <span className="hotspot-badge">可交互</span>
-          </div>
-        )}
       </header>
 
       {normalizedQuery ? (
@@ -215,7 +207,6 @@ export default function Items() {
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         title="按分类查看"
-        subtitle="选择一个分类，快速找到物品"
       >
         <div className="category-filter-list">
           <button

@@ -86,7 +86,6 @@ export default function LocationDetail() {
         <div className="location-hero-copy">
           <span>{location.room} · 收纳位置</span>
           <h2>{location.name}</h2>
-          <p>{locationItems.length} 件物品在这里</p>
         </div>
         <div className="location-hero-stats">
           <div>

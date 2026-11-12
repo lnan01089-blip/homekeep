@@ -262,10 +262,6 @@ export const formatMonthDay = (key) => {
   return `${d.getMonth() + 1}月${d.getDate()}日`
 }
 
-export const formatWeekday = (date = new Date()) => {
-  return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()]
-}
-
 export const getGreeting = (date = new Date()) => {
   const h = date.getHours()
   if (h < 5) return '夜深了'

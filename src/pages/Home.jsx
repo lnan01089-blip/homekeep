@@ -1,7 +1,7 @@
-import { CalendarDays, ChevronRight, CircleAlert, Plus, Settings2, Sparkles } from 'lucide-react'
+import { ChevronRight, Plus, Settings2, Sparkles } from 'lucide-react'
 import { categories } from '../data'
 import { useStore } from '../store'
-import { CategoryIcon, ItemRow, SectionHeader } from '../components/ui'
+import { BrandMark, CategoryIcon, ItemRow, SectionHeader } from '../components/ui'
 
 function MiniHomeDoodle() {
   return (
@@ -36,11 +36,12 @@ const statItems = [
 export default function Home() {
   const { helpers, navigate, goTab } = useStore()
   const { activeItems, soonItems, lowItems, expiredCount } = helpers
-  const greeting = new Date().getHours() < 11 ? '早上好' : new Date().getHours() < 18 ? '下午好' : '晚上好'
   const minuteItems = [...soonItems].sort((a, b) => helpers.daysLeft(a) - helpers.daysLeft(b)).slice(0, 3)
-  const todaysDate = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' }).format(
-    new Date(),
-  )
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = today.getMonth() + 1
+  const day = today.getDate()
+  const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(today)
 
   const counts = {
     total: activeItems.length,
@@ -64,35 +65,29 @@ export default function Home() {
     ).length,
   }))
 
-  const isEmpty = activeItems.length === 0 && helpers.trashItems.length === 0
 
   return (
     <div className="page home-page">
-      <header className="home-header">
-        <div className="home-topline">
-          <span className="mini-brand">
-            <span className="mini-brand-dot" />
-            HOMEKEEP <em>·</em> 家物
-          </span>
+      <header className="home-header home-calendar-header">
+        <div className="home-calendar-topbar">
+          <BrandMark size={34} />
           <button className="icon-button settings-button" onClick={() => goTab('settings')} aria-label="打开设置">
             <Settings2 size={20} />
           </button>
         </div>
-        <div className="home-title-block">
-          <div>
-            <span className="greeting">
-              {greeting}
-              <i />
-            </span>
-            <h1>我的家</h1>
-            <div className="home-date">
-              <CalendarDays size={14} />
-              <span>{todaysDate}</span>
-              <span className="date-divider" />
-              <span>{activeItems.length ? '一切都被好好收着' : '从记录第一件物品开始'}</span>
-            </div>
+        <div className="home-calendar-card">
+          <div className="calendar-meta-row">
+            <span>{year}年</span>
+            <span className="calendar-month-label">{month}月</span>
           </div>
-          <MiniHomeDoodle />
+          <div className="calendar-main-row">
+            <strong className="home-calendar-day">{day}</strong>
+            <div className="calendar-day-side">
+              <span className="calendar-weekday">{weekday}</span>
+            </div>
+            <MiniHomeDoodle />
+          </div>
+          <p className="home-calendar-tagline">Everything, kept with care.</p>
         </div>
       </header>
 
@@ -123,15 +118,6 @@ export default function Home() {
             </button>
           ))}
         </div>
-        <div className="overview-note">
-          <span className="overview-leaf">⌁</span>
-          <span>
-            {soonItems.length
-              ? `下一次需要留意的是「${minuteItems[0]?.name}」，${helpers.daysLeft(minuteItems[0])} 天后到期`
-              : '家里暂时没有需要留意的事情'}
-          </span>
-          <ChevronRight size={14} />
-        </div>
       </section>
 
       <section className="home-section">
@@ -160,7 +146,6 @@ export default function Home() {
             </span>
             <div>
               <strong>暂时没有即将到期的物品</strong>
-              <p>新的记录会自动帮你留意日期</p>
             </div>
           </div>
         )}
@@ -200,22 +185,11 @@ export default function Home() {
           </span>
           <span className="home-add-copy">
             <strong>添加物品</strong>
-            <small>把新物品放进家的位置</small>
           </span>
           <ChevronRight size={18} />
         </button>
-        <p className="privacy-note">
-          <span className="privacy-dot" />
-          数据仅保存在这台设备
-        </p>
       </section>
 
-      {isEmpty && (
-        <button className="clear-data-hint" onClick={() => navigate('add')}>
-          <CircleAlert size={15} />
-          家中还没有物品，记录第一件吧
-        </button>
-      )}
     </div>
   )
 }

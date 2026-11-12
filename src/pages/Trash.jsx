@@ -5,7 +5,6 @@ import {
   Leaf,
   MapPin,
   RotateCcw,
-  ShieldCheck,
   Trash2,
 } from 'lucide-react'
 import { findCategory, findLocation, formatDate } from '../data'
@@ -61,20 +60,10 @@ export default function Trash() {
           <div>
             <span className="eyebrow">EXPIRED STAGING</span>
             <h1>过期物品暂存区</h1>
-            <p>过期，不等于丢弃。这里没有自动删除，只有你做的决定。</p>
           </div>
           <Leaf size={18} className="trash-leaf" />
         </div>
       </header>
-
-      <div className="trash-rule-card">
-        <span>
-          <ShieldCheck size={16} />
-        </span>
-        <p>
-          HomeKeep 只负责记录与提醒。食品、药品是否还能使用，请你结合实际情况判断。
-        </p>
-      </div>
 
       {items.length ? (
         <>

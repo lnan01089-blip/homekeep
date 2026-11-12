@@ -7322,3 +7322,413 @@ button:disabled {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* =========================================================
+   Redesign v2 — large calendar home header & live camera
+   ========================================================= */
+
+.home-calendar-header {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.home-calendar-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.home-calendar-topbar .brand-mark {
+  width: 33px;
+  height: 33px;
+}
+
+.home-calendar-card {
+  position: relative;
+  overflow: hidden;
+  padding: 13px 17px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 28px;
+  background:
+    radial-gradient(190px 130px at 105% 3%, rgba(220, 233, 226, 0.75), transparent 70%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 237, 227, 0.7));
+  box-shadow: 0 12px 32px rgba(66, 77, 71, 0.065);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.home-calendar-card::before {
+  content: "";
+  position: absolute;
+  top: -56px;
+  right: -38px;
+  width: 156px;
+  height: 156px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+}
+
+.home-calendar-card::after {
+  content: "";
+  position: absolute;
+  right: 123px;
+  bottom: 50px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d5b887;
+  opacity: 0.55;
+}
+
+.calendar-meta-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9da49c;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+}
+
+.calendar-meta-row span:first-child {
+  color: #a7ada5;
+}
+
+.calendar-month-label {
+  color: #6d7d71;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.calendar-main-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 1px;
+}
+
+.home-calendar-day {
+  color: #3c4941;
+  font-size: 80px;
+  font-weight: 520;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.075em;
+  line-height: 0.98;
+}
+
+.calendar-day-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding-top: 12px;
+}
+
+.calendar-weekday {
+  color: #526158;
+  font-size: 19px;
+  font-weight: 580;
+  letter-spacing: -0.025em;
+}
+
+.home-calendar-card .mini-home-doodle {
+  width: 92px;
+  height: 78px;
+  margin: 0 0 -8px auto;
+  opacity: 0.95;
+}
+
+.home-calendar-tagline {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+  color: #77857b;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+.home-calendar-header + .overview-card {
+  margin-top: 0;
+}
+
+/* Home add button: single line, no supporting copy */
+.home-add-copy {
+  justify-content: center;
+}
+
+.home-add-button {
+  min-height: 56px;
+}
+
+.overview-note {
+  display: none;
+}
+
+/* Screen copy reduction */
+.screen-heading p,
+.settings-header p,
+.reminders-title-row p,
+.category-card-description,
+.category-kicker,
+.reminder-section-heading p,
+.form-section-heading p,
+.form-photo-copy p,
+.space-card-head p {
+  display: none;
+}
+
+/* Keep sheet option descriptions out of the visual layer */
+.select-option-description,
+.category-select-option small {
+  display: none;
+}
+
+/* Live camera */
+.camera-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.camera-video.is-visible {
+  opacity: 1;
+}
+
+.camera-vignette {
+  z-index: 1;
+}
+
+.camera-grain {
+  z-index: 2;
+}
+
+.scan-topbar,
+.scan-instruction-top,
+.scanner-area,
+.camera-controls,
+.photo-preview-overlay {
+  z-index: 4;
+}
+
+.scanner-frame.is-live {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.camera-permission-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  display: flex;
+  width: min(78%, 226px);
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 14px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  color: #f5faf5;
+  background: rgba(26, 35, 29, 0.67);
+  text-align: center;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(16px);
+}
+
+.camera-permission-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 8px;
+  place-items: center;
+  border-radius: 12px;
+  color: #d5e5da;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.camera-permission-card strong {
+  font-size: 11.5px;
+  font-weight: 550;
+}
+
+.camera-permission-card p {
+  margin-top: 3px;
+  color: rgba(232, 241, 233, 0.58);
+  font-size: 8.5px;
+}
+
+.camera-permission-card button {
+  display: inline-flex;
+  height: 29px;
+  align-items: center;
+  gap: 4px;
+  margin-top: 9px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: #4f6557;
+  background: rgba(247, 250, 245, 0.9);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.camera-spinner {
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid rgba(235, 246, 238, 0.25);
+  border-top-color: rgba(240, 248, 241, 0.9);
+  border-radius: 50%;
+  animation: camera-spin 0.8s linear infinite;
+}
+
+@keyframes camera-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.shutter-button.is-disabled {
+  opacity: 0.42;
+}
+
+.scan-instruction-top {
+  top: calc(var(--statusbar-height) + 66px);
+}
+
+.scan-instruction-top p {
+  margin-top: 0;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.camera-controls {
+  bottom: calc(55px + var(--safe-bottom));
+}
+
+.preview-topbar {
+  min-height: 39px;
+}
+
+.preview-topbar > span:first-of-type {
+  color: rgba(253, 253, 249, 0.94);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.preview-top-spacer {
+  width: 39px;
+  height: 39px;
+}
+
+.preview-bottom {
+  display: flex;
+  justify-content: center;
+}
+
+.preview-actions {
+  width: 100%;
+}
+
+@media (max-width: 370px) {
+  .home-calendar-day {
+    font-size: 70px;
+  }
+
+  .home-calendar-card .mini-home-doodle {
+    width: 78px;
+    height: 67px;
+  }
+
+  .calendar-weekday {
+    font-size: 17px;
+  }
+}
+
+/* Clear supporting copy beneath headings and cards */
+.sheet-heading p,
+.settings-brand-card > div span,
+.settings-row-copy small,
+.settings-section-note,
+.settings-footer,
+.reminder-master-row p,
+.reminder-setting-row small,
+.reminder-settings-title em,
+.settings-value-row small,
+.reminder-settings-footer,
+.reminder-policy-note,
+.reminder-preview-copy small,
+.reminder-paused-banner p,
+.expired-reminder-banner small,
+.reminders-empty > p,
+.form-photo-copy p,
+.field-hint,
+.form-tip-card,
+.suggested-date-card small,
+.trash-footer-note,
+.trash-location-hint,
+.custom-category-button small,
+.categories-footnote,
+.locations-footnote,
+.list-footnote,
+.detail-bottom-copy,
+.item-hero-stamp,
+.home-add-copy small,
+.privacy-note {
+  display: none;
+}
+
+.settings-row {
+  min-height: 53px;
+}
+
+.category-card {
+  min-height: 161px;
+}
+
+.category-card-name {
+  margin-top: 2px;
+}
+
+.reminder-card-footer > span {
+  display: none;
+}
+
+.reminder-policy-note {
+  display: none;
+}
+
+.settings-footer {
+  display: none;
+}
+
+/* Keep the compact form clean */
+.form-tip-card {
+  display: none;
+}
+
+.form-photo-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.form-bottom-spacer {
+  height: 18px;
+}
+
+/* Empty states: one title only */
+.empty-state p,
+.search-empty p,
+.locations-empty p,
+.reminders-empty p,
+.trash-soft-rule {
+  display: none;
+}

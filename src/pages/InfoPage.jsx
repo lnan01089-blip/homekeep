@@ -23,7 +23,6 @@ export default function InfoPage() {
           onBack={back}
           eyebrow="ABOUT HOMEKEEP"
           title="关于 HomeKeep"
-          subtitle="Know what you have, where it is, and when it expires."
         />
         <section className="about-hero">
           <div className="about-orb one" />
@@ -91,7 +90,6 @@ export default function InfoPage() {
         onBack={back}
         eyebrow="YOUR DATA, YOUR HOME"
         title="隐私政策"
-        subtitle="最后更新：2026年11月12日"
       />
       <div className="privacy-intro">
         <span>

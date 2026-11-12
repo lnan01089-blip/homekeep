@@ -69,7 +69,6 @@ export default function ReminderSettings() {
         onBack={back}
         eyebrow="NOTIFICATIONS"
         title="提醒设置"
-        subtitle="在恰当的时刻，被温柔提醒"
       />
 
       <section className="reminder-preview-card">

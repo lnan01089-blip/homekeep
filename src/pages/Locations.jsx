@@ -33,7 +33,6 @@ export default function Locations() {
         onBack={back}
         eyebrow="EVERYTHING IN PLACE"
         title="存放位置"
-        subtitle="每一处收纳，都有自己的秩序"
         right={
           <button className="icon-button solid" onClick={() => navigate('add')} aria-label="添加物品">
             <Plus size={20} />

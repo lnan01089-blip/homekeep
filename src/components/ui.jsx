@@ -189,7 +189,7 @@ export function QtyPill({ item }) {
   )
 }
 
-export function ScreenHeader({ title, eyebrow, subtitle, onBack, right = null, sticky = false, className = '' }) {
+export function ScreenHeader({ title, eyebrow, onBack, right = null, sticky = false, className = '' }) {
   return (
     <header className={`screen-header ${sticky ? 'is-sticky' : ''} ${className}`}>
       <div className="screen-header-top">
@@ -201,7 +201,6 @@ export function ScreenHeader({ title, eyebrow, subtitle, onBack, right = null, s
         <div className="screen-heading">
           {eyebrow && <span className="eyebrow">{eyebrow}</span>}
           <h1>{title}</h1>
-          {subtitle && <p>{subtitle}</p>}
         </div>
         {right ? <div className="screen-header-right">{right}</div> : null}
       </div>
@@ -389,7 +388,7 @@ function useOverlayBehavior(open, onClose) {
   }, [open, onClose])
 }
 
-export function Sheet({ open, onClose, title, subtitle, children, className = '', full = false }) {
+export function Sheet({ open, onClose, title, children, className = '', full = false }) {
   useOverlayBehavior(open, onClose)
   if (!open) return null
   return (
@@ -408,8 +407,7 @@ export function Sheet({ open, onClose, title, subtitle, children, className = ''
             <div className="sheet-heading">
               <div>
                 <h2>{title}</h2>
-                {subtitle && <p>{subtitle}</p>}
-              </div>
+                    </div>
               <button className="icon-button soft sheet-close" onClick={onClose} aria-label="关闭">
                 <X size={18} />
               </button>
@@ -476,9 +474,9 @@ export function FixedAction({ children, withTabs = false, className = '' }) {
   )
 }
 
-export function SelectSheet({ open, onClose, title, subtitle, options, value, onSelect, columns = 1 }) {
+export function SelectSheet({ open, onClose, title, options, value, onSelect, columns = 1 }) {
   return (
-    <Sheet open={open} onClose={onClose} title={title} subtitle={subtitle}>
+    <Sheet open={open} onClose={onClose} title={title}>
       <div className={`select-list ${columns === 2 ? 'two-column' : ''}`}>
         {options.map((option) => (
           <button
@@ -517,7 +515,6 @@ export function CategorySelectRender({ category }) {
       </span>
       <span>
         <strong>{category.name}</strong>
-        <small>{category.description}</small>
       </span>
     </span>
   )
@@ -531,7 +528,6 @@ export function LocationSelectRender({ location }) {
       </span>
       <span>
         <strong>{location.name}</strong>
-        <small>{location.room}</small>
       </span>
     </span>
   )
@@ -584,7 +580,7 @@ export function DatePickerSheet({ open, onClose, value, onSelect, title = '选�
     setViewYear(nextYear)
   }
   return (
-    <Sheet open={open} onClose={onClose} title={title} subtitle="日期均为选填项" className="date-sheet">
+    <Sheet open={open} onClose={onClose} title={title} className="date-sheet">
       <div className="date-picker-head">
         <button className="icon-button soft" onClick={() => goMonth(-1)} aria-label="上个月">
           <ChevronLeft size={18} />
