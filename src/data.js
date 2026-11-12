@@ -43,7 +43,7 @@ export const categories = [
   },
   {
     id: 'beauty',
-    name: '美妆护肤',
+    name: '化妆品',
     icon: 'sparkles',
     color: '#A87D76',
     tint: '#F1E7E4',
@@ -774,6 +774,20 @@ export const defaultSettings = {
   sound: true,
 }
 
-export const findCategory = (id) => categories.find((c) => c.id === id) || categories[0]
-export const findLocation = (id) => locations.find((l) => l.id === id) || locations[locations.length - 1]
+let customCategoryRegistry = []
+let customLocationRegistry = []
+
+export const setCustomTaxonomy = (nextCategories = [], nextLocations = []) => {
+  customCategoryRegistry = nextCategories
+  customLocationRegistry = nextLocations
+}
+
+export const getAllCategories = () => [...categories, ...customCategoryRegistry]
+export const getAllLocations = () => [...locations, ...customLocationRegistry]
+export const findCategory = (id) =>
+  getAllCategories().find((category) => category.id === id) || categories[0]
+export const findLocation = (id) => {
+  const allLocations = getAllLocations()
+  return allLocations.find((location) => location.id === id) || allLocations[allLocations.length - 1]
+}
 export const getItemImage = (item) => item?.imageUrl || (item?.imageKey ? images[item.imageKey] : null)

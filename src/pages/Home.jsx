@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarDays, ChevronRight, MapPin, Plus, Settings2, Sparkles, X } from 'lucide-react'
-import { categories, findLocation, formatDate } from '../data'
+import { Boxes, CalendarDays, MapPin, Menu, Settings2, X } from 'lucide-react'
+import { findLocation, formatDate } from '../data'
 import { useStore } from '../store'
-import { BrandMark, CategoryIcon, ItemRow, SectionHeader } from '../components/ui'
+
 
 function MiniHomeDoodle() {
   return (
@@ -29,17 +29,16 @@ function MiniHomeDoodle() {
 
 const statItems = [
   { key: 'total', label: '在库物品', tone: 'neutral' },
-  { key: 'soon', label: '即将到期', tone: 'soon' },
+  { key: 'soon', label: '临近过期', tone: 'soon' },
   { key: 'expired', label: '过期待处理', tone: 'expired' },
   { key: 'low', label: '库存不足', tone: 'low' },
 ]
 
 export default function Home() {
-  const { helpers, navigate, goTab, items, settings } = useStore()
+  const { helpers, navigate, goTab, items, settings, openSidebar } = useStore()
   const [popover, setPopover] = useState(null)
   const calendarHeaderRef = useRef(null)
   const { activeItems, soonItems, lowItems, expiredCount } = helpers
-  const minuteItems = [...soonItems].sort((a, b) => helpers.daysLeft(a) - helpers.daysLeft(b)).slice(0, 3)
   const today = new Date()
   const year = today.getFullYear()
   const month = today.getMonth() + 1
@@ -123,31 +122,19 @@ export default function Home() {
 
   const onStatClick = (key) => {
     if (key === 'total') navigate('allItems')
-    if (key === 'soon') {
-      if (settings.remindersOn && settings.expiryReminders) navigate('reminders', { tab: 'expiring' })
-      else navigate('allItems', { filter: 'soon' })
-    }
+    if (key === 'soon') navigate('collection', { view: 'soon' })
     if (key === 'expired') navigate('trash')
-    if (key === 'low') {
-      if (settings.remindersOn && settings.stockReminders) navigate('reminders', { tab: 'low' })
-      else navigate('allItems', { filter: 'low' })
-    }
+    if (key === 'low') navigate('reminders', { tab: 'low' })
   }
-
-  const categoryCounts = categories.map((category) => ({
-    ...category,
-    count: activeItems.filter((item) => item.category === category.id).length,
-    soon: activeItems.filter(
-      (item) => item.category === category.id && helpers.isSoon(item),
-    ).length,
-  }))
 
 
   return (
     <div className="page home-page">
       <header className="home-header home-calendar-header" ref={calendarHeaderRef}>
         <div className="home-calendar-topbar">
-          <BrandMark size={34} />
+          <button className="icon-button settings-button" onClick={openSidebar} aria-label="打开物品导航">
+            <Menu size={20} />
+          </button>
           <button className="icon-button settings-button" onClick={() => goTab('settings')} aria-label="打开设置">
             <Settings2 size={20} />
           </button>
@@ -256,8 +243,8 @@ export default function Home() {
       <section className="overview-card glass-card">
         <div className="overview-heading">
           <span className="overline-with-icon">
-            <Sparkles size={14} />
-            家中概览
+            <Boxes size={14} />
+            库存
           </span>
           <span
             className={`health-pill ${expiredCount ? 'has-alert' : soonItems.length || lowItems.length ? 'has-notice' : ''}`}
@@ -283,82 +270,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      <section className="home-section">
-        <SectionHeader
-          title="即将到期"
-          meta={soonItems.length}
-          action="查看全部"
-          onAction={() =>
-            settings.remindersOn && settings.expiryReminders
-              ? navigate('reminders', { tab: 'expiring' })
-              : navigate('allItems', { filter: 'soon' })
-          }
-        />
-        {minuteItems.length ? (
-          <div className="expiring-list card-surface">
-            {minuteItems.map((item) => (
-              <ItemRow
-                key={item.id}
-                item={item}
-                compact
-                status={helpers.statusFor(item)}
-                onClick={() => navigate('item', { id: item.id })}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="quiet-empty">
-            <span className="quiet-empty-icon">
-              <Sparkles size={20} />
-            </span>
-            <div>
-              <strong>暂时没有即将到期的物品</strong>
-            </div>
-          </div>
-        )}
-      </section>
-
-      <section className="home-section home-category-section">
-        <SectionHeader
-          title="物品分类"
-          action="查看全部"
-          onAction={() => navigate('categories')}
-        />
-        <div className="home-category-grid">
-          {categoryCounts.map((category) => (
-            <button
-              className="home-category-tile"
-              key={category.id}
-              onClick={() => navigate('category', { id: category.id })}
-            >
-              <span
-                className="category-tile-icon"
-                style={{ background: category.tint, color: category.color }}
-              >
-                <CategoryIcon category={category} size={20} />
-              </span>
-              <span className="category-tile-name">{category.name}</span>
-              <span className="category-tile-count">{category.count} 件</span>
-              {category.soon > 0 && <span className="category-soon-dot" title={`${category.soon}件即将到期`} />}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="home-add-wrap">
-        <button className="home-add-button" onClick={() => navigate('add', { source: 'home' })}>
-          <span className="home-add-icon">
-            <Plus size={21} />
-          </span>
-          <span className="home-add-copy">
-            <strong>添加物品</strong>
-          </span>
-          <ChevronRight size={18} />
-        </button>
-      </section>
-
-
 
     </div>
   )

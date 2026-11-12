@@ -68,7 +68,7 @@ export default function ReminderSettings() {
       <ScreenHeader
         onBack={back}
         eyebrow="NOTIFICATIONS"
-        title="提醒设置"
+        title="通知设置"
       />
 
       <section className="reminder-preview-card">
@@ -114,7 +114,7 @@ export default function ReminderSettings() {
             icon={AlarmClock}
             color="#B67F4D"
             tint="#F7EEDF"
-            title="即将到期"
+            title="临近过期"
             description="在有效期到来前提醒你优先使用"
             checked={settings.expiryReminders}
             onChange={(value) => updateSettings({ expiryReminders: value })}
@@ -187,7 +187,7 @@ export default function ReminderSettings() {
 
       <button className="reminder-manage-back" onClick={back}>
         <Package size={15} />
-        返回提醒中心
+        返回待办中心
       </button>
 
       <SelectSheet

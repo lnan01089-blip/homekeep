@@ -6,7 +6,7 @@ import {
   Plus,
   Sparkles,
 } from 'lucide-react'
-import { findCategory, findLocation, locations } from '../data'
+import { findCategory, findLocation } from '../data'
 import { useStore } from '../store'
 import {
   CategoryIcon,
@@ -25,7 +25,7 @@ const sortOptions = [
 ]
 
 export default function CategoryDetail() {
-  const { route, back, helpers, navigate } = useStore()
+  const { route, back, helpers, navigate, allLocations } = useStore()
   const category = findCategory(route.params?.id)
   const [query, setQuery] = useState('')
   const [locationFilter, setLocationFilter] = useState('all')
@@ -39,8 +39,8 @@ export default function CategoryDetail() {
 
   const availableLocations = useMemo(() => {
     const ids = [...new Set(categoryItems.map((item) => item.location))]
-    return locations.filter((location) => ids.includes(location.id))
-  }, [categoryItems])
+    return allLocations.filter((location) => ids.includes(location.id))
+  }, [categoryItems, allLocations])
 
   const shownItems = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -105,7 +105,7 @@ export default function CategoryDetail() {
             </span>
             <i />
             <span>
-              <strong>{soonCount}</strong> 即将到期
+              <strong>{soonCount}</strong> 临近过期
             </span>
             {retainedCount > 0 && (
               <>

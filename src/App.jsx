@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import {
-  Bell,
   House,
   LayoutGrid,
+  ListTodo,
   ScanLine,
   Settings2,
 } from 'lucide-react'
@@ -10,7 +10,10 @@ import { StoreProvider, useStore } from './store'
 import { BrandMark, ConfirmDialog, LogoWordmark, Toast } from './components/ui'
 import Home from './pages/Home'
 import Items from './pages/Items'
-import Reminders from './pages/Reminders'
+import Tasks from './pages/Tasks'
+import SmartList from './pages/SmartList'
+import InventoryOverview from './pages/InventoryOverview'
+import Sidebar from './components/Sidebar'
 import Settings from './pages/Settings'
 import Categories from './pages/Categories'
 import CategoryDetail from './pages/CategoryDetail'
@@ -28,7 +31,7 @@ const tabItems = [
   { id: 'home', label: '首页', icon: House },
   { id: 'items', label: '物品', icon: LayoutGrid },
   { id: 'scan', label: '扫描', center: true },
-  { id: 'reminders', label: '提醒', icon: Bell },
+  { id: 'reminders', label: '待办', icon: ListTodo },
   { id: 'settings', label: '设置', icon: Settings2 },
 ]
 
@@ -136,11 +139,15 @@ function RouteView() {
     case 'edit':
       return <ItemForm />
     case 'reminders':
-      return <Reminders />
+      return <Tasks />
     case 'reminderSettings':
       return <ReminderSettings />
     case 'trash':
       return <Trash />
+    case 'collection':
+      return <SmartList />
+    case 'inventory':
+      return <InventoryOverview />
     case 'settings':
       return <Settings />
     case 'privacy':
@@ -206,6 +213,7 @@ function PhoneShell() {
           </div>
         </main>
         {showTabBar && <BottomNav />}
+        <Sidebar />
         <div id="phone-layer" className="phone-layer" />
         <ConfirmDialog state={confirmState} onResolve={resolveConfirm} />
         <Toast toast={toastState} />

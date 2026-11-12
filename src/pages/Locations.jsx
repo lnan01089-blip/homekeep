@@ -1,18 +1,17 @@
 import { MapPinned, Plus, Sparkles } from 'lucide-react'
-import { locations } from '../data'
 import { useStore } from '../store'
 import { LocationIcon, ProductMedia, ScreenHeader } from '../components/ui'
 
-const roomOrder = ['厨房', '餐厅', '客厅', '卧室', '浴室', '储物间', '家中']
+const roomOrder = ['厨房', '餐厅', '客厅', '卧室', '浴室', '储物间', '家中', '自定义']
 
 export default function Locations() {
-  const { helpers, navigate, back } = useStore()
+  const { helpers, navigate, back, allLocations } = useStore()
   const { activeItems } = helpers
 
   const groups = roomOrder
     .map((room) => ({
       room,
-      items: locations
+      items: allLocations
         .filter((location) => location.room === room)
         .map((location) => {
           const content = activeItems.filter((item) => item.location === location.id)

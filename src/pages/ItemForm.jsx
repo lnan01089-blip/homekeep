@@ -14,11 +14,9 @@ import {
 } from 'lucide-react'
 import {
   addDays,
-  categories,
   findCategory,
   findLocation,
   formatDate,
-  locations,
   parseDate,
 } from '../data'
 import { useStore } from '../store'
@@ -62,6 +60,8 @@ export default function ItemForm() {
     goTab,
     navigate,
     settings,
+    allCategories,
+    allLocations,
     addItem,
     updateItem,
     toast,
@@ -566,7 +566,7 @@ export default function ItemForm() {
         open={sheet === 'category'}
         onClose={() => setSheet(null)}
         title="选择物品分类"
-        options={categories.map((option) => ({
+        options={allCategories.map((option) => ({
           value: option.id,
           render: <CategorySelectRender category={option} />,
         }))}
@@ -578,7 +578,7 @@ export default function ItemForm() {
         open={sheet === 'location'}
         onClose={() => setSheet(null)}
         title="选择存放位置"
-        options={locations.map((option) => ({
+        options={allLocations.map((option) => ({
           value: option.id,
           render: <LocationSelectRender location={option} />,
         }))}

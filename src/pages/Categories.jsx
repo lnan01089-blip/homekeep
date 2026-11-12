@@ -1,13 +1,12 @@
 import { ChevronRight, Plus, Sparkles } from 'lucide-react'
-import { categories } from '../data'
 import { useStore } from '../store'
 import { CategoryIcon, ScreenHeader } from '../components/ui'
 
 export default function Categories() {
-  const { helpers, navigate, back, toast } = useStore()
+  const { helpers, navigate, back, allCategories } = useStore()
   const { activeItems } = helpers
 
-  const items = categories.map((category) => {
+  const items = allCategories.map((category) => {
     const categoryItems = activeItems.filter((item) => item.category === category.id)
     return {
       ...category,
@@ -39,7 +38,7 @@ export default function Categories() {
         <span className="overview-strip-divider" />
         <div>
           <span className="overline">分布于</span>
-          <strong>{categories.length}</strong>
+          <strong>{allCategories.length}</strong>
           <span>个分类</span>
         </div>
         <span className="tiny-leaf-decoration">
@@ -75,7 +74,7 @@ export default function Categories() {
                 <small>件物品</small>
               </span>
               <span className="category-flags">
-                {category.soon > 0 && <em>{category.soon} 即将到期</em>}
+                {category.soon > 0 && <em>{category.soon} 临近过期</em>}
                 {category.low > 0 && <em className="low">{category.low} 库存不足</em>}
               </span>
             </span>
@@ -83,20 +82,6 @@ export default function Categories() {
           </button>
         ))}
       </div>
-
-      <button
-        className="custom-category-button"
-        onClick={() => toast('自定义分类将在后续版本开放')}
-      >
-        <span>
-          <Plus size={17} />
-        </span>
-        <div>
-          <strong>自定义分类</strong>
-          <small>为更特别的生活习惯留一个位置</small>
-        </div>
-        <ChevronRight size={17} />
-      </button>
 
       <p className="categories-footnote">分类会随着每一条物品记录自动更新</p>
     </div>

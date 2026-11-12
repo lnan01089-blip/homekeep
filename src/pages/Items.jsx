@@ -4,6 +4,7 @@ import {
   LayoutGrid,
   ListFilter,
   MapPinned,
+  Menu,
   PackageSearch,
   Plus,
   ScanLine,
@@ -11,7 +12,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react'
-import { categories, findCategory, findLocation } from '../data'
+import { findCategory, findLocation } from '../data'
 import { useStore } from '../store'
 import HouseScene from '../components/HouseScene'
 import {
@@ -24,7 +25,7 @@ import {
 } from '../components/ui'
 
 export default function Items() {
-  const { helpers, navigate } = useStore()
+  const { helpers, navigate, allCategories, openSidebar } = useStore()
   const [query, setQuery] = useState('')
   const [filterOpen, setFilterOpen] = useState(false)
   const { activeItems, trashItems } = helpers
@@ -62,7 +63,12 @@ export default function Items() {
       <header className="items-header">
         <div className="items-topline">
           <div>
-            <span className="eyebrow">MY HOME · SPACE</span>
+            <div className="tab-eyebrow-row">
+              <button className="icon-button settings-button tab-menu-button" onClick={openSidebar} aria-label="打开物品导航">
+                <Menu size={18} />
+              </button>
+              <span className="eyebrow">MY HOME · SPACE</span>
+            </div>
             <h1>
               我的物品
               <span className="title-count">{activeItems.length}</span>
@@ -172,7 +178,7 @@ export default function Items() {
                 </span>
                 <span>
                   <strong>按分类查看</strong>
-                  <small>{categories.length} 个分类</small>
+                  <small>{allCategories.length} 个分类</small>
                 </span>
                 <ChevronRight size={16} />
               </button>
@@ -225,7 +231,7 @@ export default function Items() {
             </span>
             <ChevronRight size={17} />
           </button>
-          {categories.map((category) => {
+          {allCategories.map((category) => {
             const count = activeItems.filter((item) => item.category === category.id).length
             return (
               <button

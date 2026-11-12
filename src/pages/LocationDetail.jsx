@@ -129,7 +129,7 @@ export default function LocationDetail() {
             </FilterChip>
             {soonCount > 0 && (
               <FilterChip active={filter === 'soon'} onClick={() => setFilter('soon')} tone="soon">
-                即将到期 {soonCount}
+                临近过期 {soonCount}
               </FilterChip>
             )}
             {lowCount > 0 && (

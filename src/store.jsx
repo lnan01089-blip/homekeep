@@ -6,6 +6,9 @@ import {
   defaultSettings,
   parseDate,
   seedItems,
+  setCustomTaxonomy,
+  getAllCategories,
+  getAllLocations,
 } from './data'
 
 const STORAGE_KEY = 'homekeep.prototype.v1'
@@ -34,6 +37,8 @@ const routeSections = {
   locations: 'items',
   location: 'items',
   allItems: 'items',
+  collection: 'items',
+  inventory: 'items',
   item: 'items',
   trash: 'items',
   reminders: 'reminders',
@@ -49,6 +54,9 @@ export function StoreProvider({ children }) {
     ...defaultSettings,
     ...(initialSaved?.settings ?? {}),
   })
+  const [customCategories, setCustomCategories] = useState(initialSaved?.customCategories ?? [])
+  const [customLocations, setCustomLocations] = useState(initialSaved?.customLocations ?? [])
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [stack, setStack] = useState([{ name: 'home', params: {} }])
   const [toastState, setToastState] = useState(null)
   const [confirmState, setConfirmState] = useState(null)
@@ -70,13 +78,19 @@ export function StoreProvider({ children }) {
     }
   }, [])
 
+  // Keep the data-layer lookups in sync before children render.
+  setCustomTaxonomy(customCategories, customLocations)
+
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, settings }))
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ items, settings, customCategories, customLocations }),
+      )
     } catch {
       // The prototype still works when storage is unavailable.
     }
-  }, [items, settings])
+  }, [items, settings, customCategories, customLocations])
 
   const route = stack[stack.length - 1]
   const activeTab = routeSections[route.name] ?? null
@@ -110,6 +124,9 @@ export function StoreProvider({ children }) {
   const resetStack = useCallback((name = 'items') => {
     setStack([{ name, params: {} }])
   }, [])
+
+  const openSidebar = useCallback(() => setSidebarOpen(true), [])
+  const closeSidebar = useCallback(() => setSidebarOpen(false), [])
 
   const toast = useCallback((message, options = {}) => {
     if (toastTimer.current) clearTimeout(toastTimer.current)
@@ -196,6 +213,53 @@ export function StoreProvider({ children }) {
     setSettings((prev) => ({ ...prev, ...patch }))
   }, [])
 
+  const addCustomCategory = useCallback(
+    (name) => {
+      const trimmed = name.trim()
+      if (!trimmed) return null
+      if (getAllCategories().some((category) => category.name === trimmed)) return null
+      const swatches = [
+        { color: '#7C8E82', tint: '#E8EFEA', soft: '#F4F7F3' },
+        { color: '#9A8061', tint: '#F1EBDF', soft: '#F8F5EE' },
+        { color: '#8A7E91', tint: '#EEE9F0', soft: '#F7F4F8' },
+        { color: '#758B95', tint: '#E8EFF2', soft: '#F3F7F8' },
+      ]
+      const swatch = swatches[customCategories.length % swatches.length]
+      const category = {
+        id: `custom-category-${Date.now()}`,
+        name: trimmed,
+        icon: 'custom',
+        description: '自定义分类',
+        isCustom: true,
+        ...swatch,
+      }
+      setCustomCategories((prev) => [...prev, category])
+      return category
+    },
+    [customCategories.length],
+  )
+
+  const addCustomLocation = useCallback(
+    (name) => {
+      const trimmed = name.trim()
+      if (!trimmed) return null
+      if (getAllLocations().some((location) => location.name === trimmed)) return null
+      const location = {
+        id: `custom-location-${Date.now()}`,
+        name: trimmed,
+        room: '自定义',
+        mapLabel: trimmed,
+        icon: 'pin',
+        tint: '#ECEFEA',
+        color: '#7E8982',
+        isCustom: true,
+      }
+      setCustomLocations((prev) => [...prev, location])
+      return location
+    },
+    [customLocations.length],
+  )
+
   const generateExport = useCallback(
     () =>
       JSON.stringify(
@@ -204,22 +268,28 @@ export function StoreProvider({ children }) {
           version: '1.0.0',
           exportedAt: new Date().toISOString(),
           settings,
+          customCategories,
+          customLocations,
           items,
         },
         null,
         2,
       ),
-    [items, settings],
+    [items, settings, customCategories, customLocations],
   )
 
   const clearData = useCallback(() => {
     setItems([])
+    setCustomCategories([])
+    setCustomLocations([])
     toast('所有本地数据已清空')
   }, [toast])
 
   const restoreDemo = useCallback(() => {
     setItems(seedItems)
     setSettings(defaultSettings)
+    setCustomCategories([])
+    setCustomLocations([])
     toast('演示数据已恢复')
   }, [toast])
 
@@ -316,6 +386,11 @@ export function StoreProvider({ children }) {
   const value = {
     items,
     settings,
+    customCategories,
+    customLocations,
+    allCategories: getAllCategories(),
+    allLocations: getAllLocations(),
+    sidebarOpen,
     route,
     stack,
     activeTab,
@@ -328,6 +403,10 @@ export function StoreProvider({ children }) {
     goTab,
     back,
     resetStack,
+    openSidebar,
+    closeSidebar,
+    addCustomCategory,
+    addCustomLocation,
     toast,
     askConfirm,
     resolveConfirm,

@@ -26,7 +26,6 @@ import {
   Sheet,
   StatusPill,
 } from '../components/ui'
-import { locations } from '../data'
 
 export default function ItemDetail() {
   const {
@@ -36,6 +35,7 @@ export default function ItemDetail() {
     helpers,
     items,
     settings,
+    allLocations,
     adjustQuantity,
     updateItem,
     deleteItem,
@@ -323,7 +323,7 @@ export default function ItemDetail() {
         title="更换存放位置"
       >
         <div className="select-list">
-          {locations.map((option) => (
+          {allLocations.map((option) => (
             <button
               className={`select-option ${item.location === option.id ? 'is-selected' : ''}`}
               key={option.id}

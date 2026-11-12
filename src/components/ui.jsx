@@ -41,6 +41,7 @@ import {
   Sparkles,
   SprayCan,
   Table2,
+  Tag,
   Thermometer,
   Trash2,
   Tv,
@@ -110,7 +111,7 @@ const glyphIcons = {
 }
 
 export function CategoryIcon({ category, size = 20, strokeWidth = 1.8 }) {
-  const Icon = categoryIcons[category?.id] || Utensils
+  const Icon = category?.isCustom ? Tag : categoryIcons[category?.id] || Utensils
   return <Icon size={size} strokeWidth={strokeWidth} />
 }
 

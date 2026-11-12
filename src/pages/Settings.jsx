@@ -12,6 +12,7 @@ import {
   RefreshCcw,
   ShieldCheck,
   Sparkles,
+  Menu,
   Trash2,
 } from 'lucide-react'
 import { formatDate, dateKey } from '../data'
@@ -78,6 +79,7 @@ export default function Settings() {
     askConfirm,
     toast,
     navigate,
+    openSidebar,
   } = useStore()
   const [sheet, setSheet] = useState(null)
 
@@ -124,9 +126,13 @@ export default function Settings() {
     <div className="page settings-page">
       <header className="settings-header">
         <div>
-          <span className="eyebrow">YOUR HOME, YOUR RHYTHM</span>
+          <div className="tab-eyebrow-row">
+            <button className="icon-button settings-button tab-menu-button" onClick={openSidebar} aria-label="打开物品导航">
+              <Menu size={18} />
+            </button>
+            <span className="eyebrow">YOUR HOME, YOUR RHYTHM</span>
+          </div>
           <h1>设置</h1>
-          <p>让提醒贴合你的生活节奏。</p>
         </div>
         <span className="settings-leaf-mark">
           <Leaf size={22} />
