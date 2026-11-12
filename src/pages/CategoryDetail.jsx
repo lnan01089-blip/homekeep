@@ -66,7 +66,7 @@ export default function CategoryDetail() {
   }, [categoryItems, query, locationFilter, sort, helpers])
 
   const soonCount = categoryItems.filter(
-    (item) => helpers.isSoon(item) && !helpers.isLowStock(item),
+    (item) => helpers.isSoon(item),
   ).length
   const retainedCount = categoryItems.filter(helpers.isRetainedExpired).length
   const sortLabel = sortOptions.find((option) => option.value === sort)?.label

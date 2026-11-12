@@ -264,8 +264,9 @@ export default function ItemForm() {
             <Check size={16} />
           </span>
           <div>
-            <strong>已识别基础信息</strong>
+            <strong>演示识别结果</strong>
           </div>
+          <span className="scan-demo-badge">示例</span>
         </div>
       )}
 
@@ -437,8 +438,15 @@ export default function ItemForm() {
                 <div className="form-field">
                   <span className="form-label">有效期时间</span>
                   <button
-                    className={`date-field ${form.expiryTime ? 'has-date' : ''}`}
-                    onClick={() => setSheet('expiryTime')}
+                    className={`date-field ${form.expiryTime ? 'has-date' : ''} ${!form.expiryDate ? 'is-time-locked' : ''}`}
+                    onClick={() => {
+                      if (!form.expiryDate) {
+                        toast('请先选择有效期日期')
+                        return
+                      }
+                      setSheet('expiryTime')
+                    }}
+                    aria-disabled={!form.expiryDate}
                   >
                     <span>
                       <Clock3 size={17} />

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ArrowDownUp, ChevronDown, Plus } from 'lucide-react'
+import { findCategory } from '../data'
 import { useStore } from '../store'
 import {
   FilterChip,
@@ -24,7 +25,7 @@ export default function AllItems() {
   const [sortOpen, setSortOpen] = useState(false)
   const items = helpers.activeItems
 
-  const soonCount = helpers.soonItems.filter((item) => !helpers.isLowStock(item)).length
+  const soonCount = helpers.soonItems.length
   const lowCount = helpers.lowItems.length
   const retainedCount = items.filter(helpers.isRetainedExpired).length
 
@@ -32,15 +33,15 @@ export default function AllItems() {
     const q = query.trim().toLowerCase()
     return items
       .filter((item) => {
-        const categoryName = helpers.statusFor(item)
+        const categoryName = findCategory(item.category).name
         const matchesSearch =
           !q ||
           item.name.toLowerCase().includes(q) ||
           (item.spec || '').toLowerCase().includes(q) ||
-          categoryName.label.includes(q)
+          categoryName.includes(q)
         const matchesFilter =
           filter === 'all' ||
-          (filter === 'soon' && helpers.isSoon(item) && !helpers.isLowStock(item)) ||
+          (filter === 'soon' && helpers.isSoon(item)) ||
           (filter === 'low' && helpers.isLowStock(item)) ||
           (filter === 'retained' && helpers.isRetainedExpired(item))
         return matchesSearch && matchesFilter

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   AlarmClock,
   Bell,
@@ -107,10 +107,7 @@ export default function Reminders() {
   )
 
   const expiring = useMemo(
-    () =>
-      [...helpers.soonItems]
-        .filter((item) => !helpers.isLowStock(item))
-        .sort((a, b) => helpers.daysLeft(a) - helpers.daysLeft(b)),
+    () => [...helpers.soonItems].sort((a, b) => helpers.daysLeft(a) - helpers.daysLeft(b)),
     [helpers],
   )
   const low = useMemo(() => helpers.lowItems, [helpers.lowItems])
@@ -167,7 +164,15 @@ export default function Reminders() {
     },
   ].filter((section) => enabledSections[section.id])
 
-  const total = sections.reduce((sum, section) => sum + section.count, 0)
+  const total = new Set(sections.flatMap((section) => section.items.map((item) => item.id))).size
+  const sectionIds = sections.map((section) => section.id).join('|')
+
+  useEffect(() => {
+    if (filter !== 'all' && !sections.some((section) => section.id === filter)) {
+      setFilter('all')
+    }
+  }, [filter, sectionIds, sections])
+
   const shownSections =
     filter === 'all'
       ? sections

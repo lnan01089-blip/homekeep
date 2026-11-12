@@ -32,7 +32,7 @@ export default function LocationDetail() {
   )
 
   const soonCount = locationItems.filter(
-    (item) => helpers.isSoon(item) && !helpers.isLowStock(item),
+    (item) => helpers.isSoon(item),
   ).length
   const lowCount = locationItems.filter(helpers.isLowStock).length
 
@@ -43,7 +43,7 @@ export default function LocationDetail() {
         const matchesSearch = !q || item.name.toLowerCase().includes(q) || (item.spec || '').toLowerCase().includes(q)
         const matchesFilter =
           filter === 'all' ||
-          (filter === 'soon' && helpers.isSoon(item) && !helpers.isLowStock(item)) ||
+          (filter === 'soon' && helpers.isSoon(item)) ||
           (filter === 'low' && helpers.isLowStock(item))
         return matchesSearch && matchesFilter
       })

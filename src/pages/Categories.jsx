@@ -12,7 +12,7 @@ export default function Categories() {
     return {
       ...category,
       count: categoryItems.length,
-      soon: categoryItems.filter((item) => helpers.isSoon(item) && !helpers.isLowStock(item)).length,
+      soon: categoryItems.filter((item) => helpers.isSoon(item)).length,
       low: categoryItems.filter((item) => helpers.isLowStock(item)).length,
     }
   })

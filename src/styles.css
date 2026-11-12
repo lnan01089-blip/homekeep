@@ -1498,7 +1498,8 @@ button:disabled {
   font-weight: 500;
 }
 
-.health-pill.has-alert {
+.health-pill.has-alert,
+.health-pill.has-notice {
   color: #a1794d;
   background: rgba(247, 236, 220, 0.78);
 }
@@ -8171,4 +8172,20 @@ button:disabled {
   box-shadow: 0 5px 14px rgba(80, 113, 93, 0.15);
   font-size: 11px;
   font-weight: 600;
+}
+
+.scan-demo-badge {
+  padding: 3px 6px;
+  border-radius: 6px;
+  color: #9b855f;
+  background: rgba(255, 255, 255, 0.58);
+  font-size: 8px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.date-field.is-time-locked {
+  color: #b0b6b0;
+  background: rgba(244, 242, 236, 0.58);
+  border-style: dashed;
 }

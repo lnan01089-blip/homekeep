@@ -53,6 +53,22 @@ export function StoreProvider({ children }) {
   const [toastState, setToastState] = useState(null)
   const [confirmState, setConfirmState] = useState(null)
   const toastTimer = useRef(null)
+  const [clockTick, setClockTick] = useState(0)
+
+  useEffect(() => {
+    const tick = () => setClockTick((value) => value + 1)
+    const timer = window.setInterval(tick, 30_000)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') tick()
+    }
+    window.addEventListener('focus', tick)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener('focus', tick)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [])
 
   useEffect(() => {
     try {
@@ -133,7 +149,21 @@ export function StoreProvider({ children }) {
   }, [])
 
   const updateItem = useCallback((id, patch) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)))
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item
+        const expiryChanged =
+          (Object.prototype.hasOwnProperty.call(patch, 'expiryDate') &&
+            patch.expiryDate !== item.expiryDate) ||
+          (Object.prototype.hasOwnProperty.call(patch, 'expiryTime') &&
+            (patch.expiryTime ?? null) !== (item.expiryTime ?? null))
+        return {
+          ...item,
+          ...patch,
+          ...(expiryChanged ? { retained: false } : {}),
+        }
+      }),
+    )
   }, [])
 
   const deleteItem = useCallback((id) => {
@@ -239,20 +269,20 @@ export function StoreProvider({ children }) {
       if (isRetainedExpired(item)) {
         return { code: 'retained', label: '已过期 · 已保留', short: '已保留', tone: 'expired' }
       }
-      if (isLowStock(item)) {
-        return {
-          code: 'low',
-          label: Number(item.quantity) === 0 ? '已用完' : '库存不足',
-          short: Number(item.quantity) === 0 ? '已用完' : '库存不足',
-          tone: 'low',
-        }
-      }
       if (isSoon(item)) {
         return {
           code: 'soon',
           label: d === 0 ? '今天到期' : `${d} 天后到期`,
           short: d === 0 ? '今天到期' : `${d} 天后`,
           tone: 'soon',
+        }
+      }
+      if (isLowStock(item)) {
+        return {
+          code: 'low',
+          label: Number(item.quantity) === 0 ? '已用完' : '库存不足',
+          short: Number(item.quantity) === 0 ? '已用完' : '库存不足',
+          tone: 'low',
         }
       }
       if (isReplacement(item)) {
@@ -262,10 +292,9 @@ export function StoreProvider({ children }) {
     }
     const activeItems = items.filter((item) => !isTrash(item))
     const trashItems = items.filter(isTrash)
-    const expiredActive = activeItems.filter(isRetainedExpired)
-    const soonItems = activeItems.filter((item) => isSoon(item) && !isLowStock(item))
+    const soonItems = activeItems.filter(isSoon)
     const lowItems = activeItems.filter(isLowStock)
-    const replacementItems = activeItems.filter((item) => isReplacement(item) && !isLowStock(item))
+    const replacementItems = activeItems.filter(isReplacement)
     return {
       daysLeft,
       isExpiredByDate,
@@ -280,9 +309,9 @@ export function StoreProvider({ children }) {
       soonItems,
       lowItems,
       replacementItems,
-      expiredCount: trashItems.length + expiredActive.length,
+      expiredCount: trashItems.length,
     }
-  }, [items, settings.defaultAdvance])
+  }, [items, settings.defaultAdvance, clockTick])
 
   const value = {
     items,

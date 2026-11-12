@@ -160,7 +160,7 @@ export default function Scan() {
       imageUrl: capturedImage,
       source: 'scan',
     })
-    toast('照片已导入，请确认识别结果', { duration: 2400 })
+    toast('照片已导入，请核对演示信息', { duration: 2400 })
   }
 
   const retryCamera = () => {

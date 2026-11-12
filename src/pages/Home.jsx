@@ -28,9 +28,9 @@ function MiniHomeDoodle() {
 }
 
 const statItems = [
-  { key: 'total', label: '物品总数', tone: 'neutral' },
+  { key: 'total', label: '在库物品', tone: 'neutral' },
   { key: 'soon', label: '即将到期', tone: 'soon' },
-  { key: 'expired', label: '已过期', tone: 'expired' },
+  { key: 'expired', label: '过期待处理', tone: 'expired' },
   { key: 'low', label: '库存不足', tone: 'low' },
 ]
 
@@ -123,16 +123,22 @@ export default function Home() {
 
   const onStatClick = (key) => {
     if (key === 'total') navigate('allItems')
-    if (key === 'soon') navigate('reminders', { tab: 'expiring' })
+    if (key === 'soon') {
+      if (settings.remindersOn && settings.expiryReminders) navigate('reminders', { tab: 'expiring' })
+      else navigate('allItems', { filter: 'soon' })
+    }
     if (key === 'expired') navigate('trash')
-    if (key === 'low') navigate('reminders', { tab: 'low' })
+    if (key === 'low') {
+      if (settings.remindersOn && settings.stockReminders) navigate('reminders', { tab: 'low' })
+      else navigate('allItems', { filter: 'low' })
+    }
   }
 
   const categoryCounts = categories.map((category) => ({
     ...category,
     count: activeItems.filter((item) => item.category === category.id).length,
     soon: activeItems.filter(
-      (item) => item.category === category.id && helpers.isSoon(item) && !helpers.isLowStock(item),
+      (item) => item.category === category.id && helpers.isSoon(item),
     ).length,
   }))
 
@@ -253,9 +259,11 @@ export default function Home() {
             <Sparkles size={14} />
             家中概览
           </span>
-          <span className={`health-pill ${expiredCount ? 'has-alert' : ''}`}>
+          <span
+            className={`health-pill ${expiredCount ? 'has-alert' : soonItems.length || lowItems.length ? 'has-notice' : ''}`}
+          >
             <span />
-            {expiredCount ? '有待处理' : '状态良好'}
+            {expiredCount ? '有待处理' : soonItems.length || lowItems.length ? '需关注' : '状态良好'}
           </span>
         </div>
         <div className="overview-stats">
@@ -281,7 +289,11 @@ export default function Home() {
           title="即将到期"
           meta={soonItems.length}
           action="查看全部"
-          onAction={() => navigate('reminders', { tab: 'expiring' })}
+          onAction={() =>
+            settings.remindersOn && settings.expiryReminders
+              ? navigate('reminders', { tab: 'expiring' })
+              : navigate('allItems', { filter: 'soon' })
+          }
         />
         {minuteItems.length ? (
           <div className="expiring-list card-surface">

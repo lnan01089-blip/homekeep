@@ -19,7 +19,7 @@ export default function Locations() {
           return {
             ...location,
             count: content.length,
-            soon: content.filter((item) => helpers.isSoon(item) && !helpers.isLowStock(item)).length,
+            soon: content.filter((item) => helpers.isSoon(item)).length,
             previews: content.slice(0, 3),
           }
         })

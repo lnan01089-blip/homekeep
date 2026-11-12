@@ -33,7 +33,7 @@ export default function Items() {
   const soonCounts = {}
   activeItems.forEach((item) => {
     counts[item.location] = (counts[item.location] || 0) + 1
-    if (helpers.isSoon(item) && !helpers.isLowStock(item)) {
+    if (helpers.isSoon(item)) {
       soonCounts[item.location] = (soonCounts[item.location] || 0) + 1
     }
   })
