@@ -247,7 +247,7 @@ export default function Home() {
             className={`health-pill ${expiredCount ? 'has-alert' : soonItems.length || lowItems.length ? 'has-notice' : ''}`}
           >
             <span />
-            {expiredCount ? '有待处理' : soonItems.length || lowItems.length ? '需关注' : '状态良好'}
+            {items.length === 0 ? '等待记录' : expiredCount ? '有待处理' : soonItems.length || lowItems.length ? '需关注' : '状态良好'}
           </span>
         </div>
         <div className="overview-stats">

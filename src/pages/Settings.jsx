@@ -9,7 +9,6 @@ import {
   Info,
   Leaf,
   LockKeyhole,
-  RefreshCcw,
   ShieldCheck,
   Sparkles,
   Menu,
@@ -75,7 +74,6 @@ export default function Settings() {
     updateSettings,
     generateExport,
     clearData,
-    restoreDemo,
     askConfirm,
     toast,
     navigate,
@@ -110,16 +108,6 @@ export default function Settings() {
       danger: true,
     })
     if (confirmed) clearData()
-  }
-
-  const handleRestore = async () => {
-    const confirmed = await askConfirm({
-      title: '恢复演示数据？',
-      message: '当前的修改会被 HomeKeep 的示例物品重新覆盖，适合重新演示完整流程。',
-      confirmLabel: '恢复演示',
-      cancelLabel: '取消',
-    })
-    if (confirmed) restoreDemo()
   }
 
   return (
@@ -232,13 +220,6 @@ export default function Settings() {
             description="移除这台设备上的所有记录"
             onClick={handleClear}
             danger
-          />
-          <SettingsRow
-            icon={RefreshCcw}
-            iconClass="neutral"
-            title="恢复演示数据"
-            description="清除修改，重新体验完整流程"
-            onClick={handleRestore}
             last
           />
         </div>

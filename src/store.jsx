@@ -5,13 +5,18 @@ import {
   daysUntil,
   defaultSettings,
   parseDate,
-  seedItems,
   setCustomTaxonomy,
   getAllCategories,
   getAllLocations,
 } from './data'
 
-const STORAGE_KEY = 'homekeep.prototype.v1'
+const STORAGE_KEY = 'homekeep.prototype.v2'
+const LEGACY_STORAGE_KEYS = ['homekeep.prototype.v1']
+try {
+  LEGACY_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key))
+} catch {
+  // Storage may be unavailable in privacy-restricted contexts.
+}
 const StoreContext = createContext(null)
 
 const normalizeStoredItem = (item) => {
@@ -69,7 +74,7 @@ const routeSections = {
 }
 
 export function StoreProvider({ children }) {
-  const [items, setItems] = useState(initialSaved?.items ?? seedItems)
+  const [items, setItems] = useState(initialSaved?.items ?? [])
   const [settings, setSettings] = useState({
     ...defaultSettings,
     ...(initialSaved?.settings ?? {}),
@@ -302,15 +307,8 @@ export function StoreProvider({ children }) {
     setItems([])
     setCustomCategories([])
     setCustomLocations([])
-    toast('所有本地数据已清空')
-  }, [toast])
-
-  const restoreDemo = useCallback(() => {
-    setItems(seedItems)
     setSettings(defaultSettings)
-    setCustomCategories([])
-    setCustomLocations([])
-    toast('演示数据已恢复')
+    toast('所有本地数据已清空')
   }, [toast])
 
   const helpers = useMemo(() => {
@@ -439,7 +437,6 @@ export function StoreProvider({ children }) {
     updateSettings,
     generateExport,
     clearData,
-    restoreDemo,
   }
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

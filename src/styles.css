@@ -9182,3 +9182,910 @@ button:disabled {
   flex: 0 0 auto;
   color: #b4bbb4;
 }
+
+/* =========================================================
+   Typography refinement — more generous, less cramped
+   ========================================================= */
+
+body {
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: 0.002em;
+}
+
+.statusbar-time {
+  font-size: 14px;
+}
+
+.tab-label {
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.screen-heading h1 {
+  font-size: 31px;
+}
+
+.screen-heading p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.eyebrow {
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+}
+
+.overline {
+  font-size: 10.5px;
+}
+
+.section-header h2 {
+  font-size: 20px;
+}
+
+.section-count {
+  min-width: 22px;
+  height: 22px;
+  font-size: 11px;
+}
+
+.text-button {
+  font-size: 11.5px;
+}
+
+.item-name {
+  font-size: 16.5px;
+}
+
+.item-row.raised-item-row .item-name {
+  font-size: 17px;
+}
+
+.item-meta {
+  gap: 7px;
+  font-size: 12px;
+}
+
+.item-expiry {
+  font-size: 11.5px;
+}
+
+.item-row {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.status-pill {
+  min-height: 22px;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.category-tile-name {
+  font-size: 12px;
+}
+
+.category-tile-count {
+  font-size: 10px;
+}
+
+.stat-label {
+  font-size: 11px;
+}
+
+.overview-note {
+  font-size: 10.5px;
+}
+
+.overview-heading .overline-with-icon {
+  font-size: 11px;
+}
+
+.health-pill {
+  font-size: 10px;
+}
+
+.home-calendar-tagline {
+  font-size: 15px;
+}
+
+.month-calendar-head strong {
+  font-size: 19.5px;
+}
+
+.month-calendar-head span {
+  font-size: 11.5px;
+}
+
+.month-calendar-weekday {
+  font-size: 13px !important;
+}
+
+.month-week-labels span {
+  font-size: 10.5px;
+}
+
+.month-day {
+  height: 31px;
+  font-size: 13px;
+}
+
+.month-day-dots {
+  gap: 2.5px;
+}
+
+.month-event-dot {
+  width: 3.5px;
+  height: 3.5px;
+}
+
+.house-label {
+  min-height: 23px;
+  padding: 4px 7px;
+  font-size: 10px;
+}
+
+.house-label-count {
+  min-width: 15px;
+  height: 15px;
+  font-size: 9px;
+}
+
+.house-card-footer {
+  font-size: 9.5px;
+}
+
+.quick-access-tile strong {
+  font-size: 12px;
+}
+
+.quick-access-tile small {
+  font-size: 10px;
+}
+
+.small-add-button {
+  height: 38px;
+  padding-right: 13px;
+  padding-left: 10px;
+  font-size: 12px;
+}
+
+.filter-button {
+  width: 50px;
+  height: 50px;
+}
+
+.search-field {
+  height: 50px;
+}
+
+.search-field input {
+  font-size: 13.5px;
+}
+
+.filter-chip {
+  min-height: 32px;
+  padding: 6px 11px;
+  font-size: 11.5px;
+}
+
+.sort-button {
+  font-size: 11.5px;
+}
+
+.result-count {
+  font-size: 11px;
+}
+
+.category-card-name {
+  font-size: 17px;
+}
+
+.category-count {
+  font-size: 21px;
+}
+
+.category-count small {
+  font-size: 9.5px;
+}
+
+.category-flags em {
+  font-size: 9px;
+}
+
+.category-detail-copy h2 {
+  font-size: 23px;
+}
+
+.category-detail-stats {
+  gap: 8px;
+  font-size: 10.5px;
+}
+
+.product-group-name-line h3 {
+  font-size: 16px;
+}
+
+.product-group-name-line span {
+  font-size: 9px;
+}
+
+.product-group-title p {
+  font-size: 11px;
+}
+
+.product-add-spec {
+  height: 31px;
+  font-size: 10px;
+}
+
+.product-variant-row {
+  min-height: 55px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.product-variant-name {
+  font-size: 13px;
+}
+
+.product-variant-meta {
+  gap: 5px;
+  font-size: 10.5px;
+}
+
+.inline-add-item {
+  height: 46px;
+  font-size: 11.5px;
+}
+
+.location-card-name {
+  font-size: 13.5px;
+}
+
+.location-card-name em {
+  font-size: 8.5px;
+}
+
+.location-card-meta {
+  font-size: 10px;
+}
+
+.location-room-heading h3 {
+  font-size: 13px;
+}
+
+.location-room-heading span {
+  font-size: 10px;
+}
+
+.location-hero-copy h2 {
+  font-size: 24px;
+}
+
+.location-hero-stats strong {
+  font-size: 22px;
+}
+
+.location-hero-stats span {
+  font-size: 9.5px;
+}
+
+.category-overview-strip strong {
+  font-size: 21px;
+}
+
+.category-overview-strip div > span:last-child {
+  font-size: 10px;
+}
+
+.sidebar-row {
+  min-height: 44px;
+  font-size: 13px;
+}
+
+.sidebar-row em {
+  min-width: 21px;
+  height: 20px;
+  font-size: 9.5px;
+}
+
+.sidebar-section-heading {
+  font-size: 10px;
+}
+
+.sidebar-taxonomy-row {
+  min-height: 39px;
+  font-size: 12px;
+}
+
+.sidebar-taxonomy-row em {
+  font-size: 9.5px;
+}
+
+.sidebar-header strong {
+  font-size: 17px;
+}
+
+.sidebar-create-form input {
+  font-size: 13.5px;
+}
+
+.sidebar-create-submit {
+  font-size: 12px;
+}
+
+.tasks-title-row h1 {
+  font-size: 34px;
+}
+
+.tasks-summary-total > span {
+  font-size: 9.5px;
+}
+
+.tasks-summary-total strong {
+  font-size: 35px;
+}
+
+.tasks-summary-total small {
+  font-size: 9px;
+}
+
+.tasks-summary-actions strong {
+  font-size: 19px;
+}
+
+.tasks-summary-actions span {
+  font-size: 9.5px;
+}
+
+.tasks-filter-tabs button {
+  height: 34px;
+  font-size: 10.5px;
+}
+
+.tasks-filter-tabs button span {
+  font-size: 8.5px;
+}
+
+.tasks-section-heading h2 {
+  font-size: 16px;
+}
+
+.task-kind {
+  font-size: 8.5px;
+}
+
+.tasks-empty h3 {
+  font-size: 17px;
+}
+
+.tasks-empty p {
+  font-size: 11.5px;
+}
+
+.tasks-filter-empty {
+  font-size: 11px;
+}
+
+.reminder-item-name {
+  font-size: 14.5px;
+}
+
+.reminder-item-meta {
+  gap: 7px;
+  font-size: 9.5px;
+}
+
+.reminder-reason strong {
+  font-size: 11px;
+}
+
+.reminder-reason small {
+  font-size: 9px;
+}
+
+.reminder-card-footer > span,
+.reminder-detail-link {
+  font-size: 9.5px;
+}
+
+.reminder-action {
+  height: 27px;
+  font-size: 9.5px;
+}
+
+.smart-count,
+.inventory-count-chip {
+  height: 35px;
+  font-size: 11px;
+}
+
+.inventory-hero-main > span {
+  font-size: 11px;
+}
+
+.inventory-hero-main small {
+  font-size: 9.5px;
+}
+
+.inventory-hero-stats span {
+  font-size: 9.5px;
+}
+
+.inventory-taxonomy-name {
+  font-size: 12.5px;
+}
+
+.inventory-taxonomy-name small {
+  font-size: 9px;
+}
+
+.inventory-taxonomy-count {
+  font-size: 12.5px;
+}
+
+.inventory-clear {
+  height: 50px;
+  font-size: 10.5px;
+}
+
+.settings-header h1 {
+  font-size: 33px;
+}
+
+.settings-section-title {
+  font-size: 10.5px;
+}
+
+.settings-row {
+  min-height: 57px;
+}
+
+.settings-row-copy strong {
+  font-size: 12.5px;
+}
+
+.settings-row-value {
+  font-size: 10.5px;
+}
+
+.settings-brand-card strong {
+  font-size: 14px;
+}
+
+.settings-version {
+  font-size: 8.5px;
+}
+
+.settings-section-note {
+  font-size: 9px;
+}
+
+.reminder-settings-page .screen-heading h1 {
+  font-size: 30px;
+}
+
+.reminder-setting-row strong {
+  font-size: 11.5px;
+}
+
+.settings-value-row strong {
+  font-size: 11.5px;
+}
+
+.settings-value-row small {
+  font-size: 9px;
+}
+
+.form-header-title h1 {
+  font-size: 19px;
+}
+
+.form-header-title > span {
+  font-size: 8.5px;
+}
+
+.form-section-heading h2 {
+  font-size: 15.5px;
+}
+
+.form-label {
+  font-size: 11px;
+}
+
+.text-input-wrap {
+  height: 47px;
+}
+
+.text-input-wrap input {
+  font-size: 13.5px;
+}
+
+.form-select {
+  height: 47px;
+  font-size: 12.5px;
+}
+
+.form-select.compact {
+  height: 47px;
+}
+
+.form-select-value > span:last-child {
+  font-size: 12.5px;
+}
+
+.form-select-value small,
+.category-select-option small {
+  font-size: 9px;
+}
+
+.number-field {
+  height: 47px;
+}
+
+.number-field input {
+  font-size: 14px;
+}
+
+.unit-input-wrap {
+  height: 47px;
+}
+
+.unit-input-wrap input {
+  font-size: 13.5px;
+}
+
+.date-field {
+  height: 46px;
+  font-size: 12.5px;
+}
+
+.date-fields-stack .form-label {
+  margin-top: 10px;
+}
+
+.shelf-life-field {
+  height: 47px;
+}
+
+.shelf-life-field input {
+  font-size: 13.5px;
+}
+
+.shelf-life-field button {
+  height: 35px;
+  font-size: 10.5px;
+}
+
+.form-auto-label {
+  font-size: 9px;
+}
+
+.form-inline-add {
+  font-size: 9.5px;
+}
+
+.photo-label {
+  font-size: 12px;
+}
+
+.change-photo-button {
+  font-size: 10px;
+}
+
+.scan-result-banner strong {
+  font-size: 11.5px;
+}
+
+.scan-demo-badge {
+  font-size: 9px;
+}
+
+.optional-tag {
+  font-size: 8.5px;
+}
+
+.after-open-field .quick-days button {
+  height: 30px;
+  font-size: 9.5px;
+}
+
+.inline-number {
+  height: 43px;
+}
+
+.inline-number input {
+  font-size: 13px;
+}
+
+.textarea-wrap textarea {
+  font-size: 12px;
+}
+
+.char-count {
+  font-size: 8.5px;
+}
+
+.primary-action {
+  height: 51px;
+  font-size: 13px;
+}
+
+.detail-topbar-title {
+  font-size: 13px;
+}
+
+.item-identity h1 {
+  font-size: 27px;
+}
+
+.item-identity p {
+  font-size: 11px;
+}
+
+.identity-quantity strong {
+  font-size: 24px;
+}
+
+.identity-quantity small {
+  font-size: 10px;
+}
+
+.expiry-copy > span {
+  font-size: 9.5px;
+}
+
+.expiry-copy strong {
+  font-size: 23px;
+}
+
+.expiry-copy small {
+  font-size: 9.5px;
+}
+
+.expiry-progress-label {
+  font-size: 9px;
+}
+
+.after-open-note {
+  font-size: 9px;
+}
+
+.location-link-copy small {
+  font-size: 9.5px;
+}
+
+.location-link-copy strong {
+  font-size: 13.5px;
+}
+
+.location-link-action {
+  font-size: 9.5px;
+}
+
+.stock-heading h3,
+.detail-card-heading h3 {
+  font-size: 15.5px;
+}
+
+.stock-indicator {
+  font-size: 9px;
+}
+
+.quantity-value strong {
+  font-size: 29px;
+}
+
+.quantity-value span {
+  font-size: 12px;
+}
+
+.info-row {
+  min-height: 42px;
+}
+
+.info-row-label,
+.info-row-value {
+  font-size: 10.5px;
+}
+
+.maintenance-card > div:nth-child(2) strong {
+  font-size: 12px;
+}
+
+.maintenance-card small {
+  font-size: 9px;
+}
+
+.note-card p {
+  font-size: 11px;
+}
+
+.reminder-summary-main > span:first-child,
+.reminder-summary-main > span:last-child {
+  font-size: 9px;
+}
+
+.summary-pill {
+  font-size: 9.5px;
+}
+
+.summary-pill strong {
+  font-size: 12px;
+}
+
+.reminder-filter-tab {
+  font-size: 10px;
+}
+
+.reminder-filter-tab span {
+  font-size: 8.5px;
+}
+
+.reminder-summary-main strong {
+  font-size: 33px;
+}
+
+.trash-hero p,
+.trash-rule-card p {
+  font-size: 9.5px;
+}
+
+.trash-meta,
+.trash-date {
+  font-size: 9.5px;
+}
+
+.trash-card-title strong {
+  font-size: 14px;
+}
+
+.retain-button,
+.delete-permanent-button {
+  height: 37px;
+  font-size: 10.5px;
+}
+
+.empty-state h3 {
+  font-size: 16.5px;
+}
+
+.empty-state p {
+  font-size: 11.5px;
+}
+
+.sheet-heading h2 {
+  font-size: 20px;
+}
+
+.select-option-label {
+  font-size: 13px;
+}
+
+.category-select-option strong {
+  font-size: 12.5px;
+}
+
+.category-select-option small {
+  font-size: 9px;
+}
+
+.calendar-weekdays span {
+  font-size: 10.5px;
+}
+
+.calendar-day {
+  height: 39px;
+  font-size: 12.5px;
+}
+
+.date-month-title strong {
+  font-size: 16px;
+}
+
+.date-month-title span {
+  font-size: 13px;
+}
+
+.date-picker-actions .text-button {
+  font-size: 11px;
+}
+
+.time-picker-preview span {
+  font-size: 32px;
+}
+
+.time-input-row label > span {
+  font-size: 10.5px;
+}
+
+.time-input-row input {
+  font-size: 17px;
+}
+
+.time-presets button {
+  font-size: 10.5px;
+}
+
+.time-confirm-button {
+  font-size: 12px;
+}
+
+.confirm-dialog h2 {
+  font-size: 17px;
+}
+
+.confirm-dialog p {
+  font-size: 10.5px;
+}
+
+.dialog-button {
+  font-size: 11.5px;
+}
+
+.toast {
+  min-height: 40px;
+  padding: 9px 15px 9px 10px;
+  font-size: 11px;
+}
+
+.scan-instruction-top p {
+  font-size: 12px;
+}
+
+.camera-controls,
+.gallery-button,
+.scan-demo-button,
+.preview-tip {
+  font-size: 9.5px;
+}
+
+.preview-topbar span {
+  font-size: 13px;
+}
+
+.retake-button,
+.use-photo-button {
+  font-size: 11.5px;
+}
+
+.category-filter-copy strong {
+  font-size: 13px;
+}
+
+.category-filter-copy small {
+  font-size: 9.5px;
+}
+
+.home-category-tile .category-tile-name {
+  font-size: 12px;
+}
+
+.home-add-copy strong {
+  font-size: 14.5px;
+}
+
+.form-tip-card p,
+.field-hint {
+  font-size: 9px;
+}
+
+@media (max-width: 370px) {
+  .screen-heading h1 {
+    font-size: 29px;
+  }
+
+  .tab-label {
+    font-size: 11.5px;
+  }
+
+  .sidebar-row {
+    font-size: 12px;
+  }
+
+  .sidebar-taxonomy-row {
+    font-size: 11.5px;
+  }
+}
