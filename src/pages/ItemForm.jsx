@@ -15,7 +15,6 @@ import {
 import {
   addDays,
   categories,
-  dateKey,
   findCategory,
   findLocation,
   formatDate,
@@ -96,11 +95,11 @@ export default function ItemForm() {
         quantity: 1,
         unit: '瓶',
         location: 'fridge',
-        purchaseDate: dateKey(),
-        expiryDate: addDays(7),
+        purchaseDate: '',
+        expiryDate: '',
         openedDate: '',
         afterOpenDays: '',
-        note: '由扫描识别导入，请确认包装上的有效期是否准确。',
+        note: '',
       }
     }
     return {
@@ -274,7 +273,7 @@ export default function ItemForm() {
             <Check size={16} />
           </span>
           <div>
-            <strong>已识别 4 项信息</strong>
+            <strong>已识别基础信息</strong>
           </div>
                   </div>
       )}

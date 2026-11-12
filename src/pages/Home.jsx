@@ -42,6 +42,13 @@ export default function Home() {
   const month = today.getMonth() + 1
   const day = today.getDate()
   const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(today)
+  const firstWeekday = new Date(year, month - 1, 1).getDay()
+  const daysInMonth = new Date(year, month, 0).getDate()
+  const calendarCells = [
+    ...Array.from({ length: firstWeekday }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
+  ]
+  while (calendarCells.length % 7 !== 0) calendarCells.push(null)
 
   const counts = {
     total: activeItems.length,
@@ -75,17 +82,33 @@ export default function Home() {
             <Settings2 size={20} />
           </button>
         </div>
-        <div className="home-calendar-card">
-          <div className="calendar-meta-row">
-            <span>{year}年</span>
-            <span className="calendar-month-label">{month}月</span>
-          </div>
-          <div className="calendar-main-row">
-            <strong className="home-calendar-day">{day}</strong>
-            <div className="calendar-day-side">
-              <span className="calendar-weekday">{weekday}</span>
+        <div className="home-calendar-card month-calendar-card">
+          <div className="month-calendar-head">
+            <div>
+              <strong>{month}月</strong>
+              <span>{year}</span>
             </div>
-            <MiniHomeDoodle />
+            <span className="month-calendar-weekday">{weekday}</span>
+          </div>
+          <div className="month-week-labels" aria-hidden="true">
+            {['日', '一', '二', '三', '四', '五', '六'].map((label) => (
+              <span key={label}>{label}</span>
+            ))}
+          </div>
+          <div className="month-grid" role="group" aria-label={`${year}年${month}月日历`}>
+            {calendarCells.map((date, index) =>
+              date ? (
+                <span
+                  key={`${month}-${date}`}
+                  className={`month-day ${date === day ? 'is-today' : ''}`}
+                  aria-label={`${month}月${date}日${date === day ? `，${weekday}` : ''}`}
+                >
+                  {date}
+                </span>
+              ) : (
+                <span key={`empty-${index}`} className="month-day is-empty" />
+              ),
+            )}
           </div>
           <p className="home-calendar-tagline">Everything, kept with care.</p>
         </div>
