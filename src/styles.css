@@ -10274,3 +10274,54 @@ body {
 .inventory-count-chip {
   justify-content: center;
 }
+
+/* =========================================================
+   Native-screen layout — no simulated phone chrome
+   ========================================================= */
+
+:root {
+  --statusbar-height: calc(var(--safe-top) + 16px);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+#root {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.app-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100vw, 480px);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  isolation: isolate;
+}
+
+.app-scroll {
+  width: 100%;
+}
+
+@media (max-width: 620px) {
+  .app-shell {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+  }
+}

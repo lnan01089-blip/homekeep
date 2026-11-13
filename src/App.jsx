@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import {
   House,
   LayoutGrid,
@@ -7,7 +6,7 @@ import {
   Settings2,
 } from 'lucide-react'
 import { StoreProvider, useStore } from './store'
-import { BrandMark, ConfirmDialog, LogoWordmark, Toast } from './components/ui'
+import { ConfirmDialog, Toast } from './components/ui'
 import Home from './pages/Home'
 import Items from './pages/Items'
 import Tasks from './pages/Tasks'
@@ -35,43 +34,6 @@ const tabItems = [
   { id: 'settings', label: '设置', icon: Settings2 },
 ]
 
-function StatusBar({ light = false }) {
-  const [time, setTime] = useState(() =>
-    new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }),
-  )
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTime(new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }))
-    }, 30_000)
-    return () => clearInterval(timer)
-  }, [])
-
-  return (
-    <div className={`statusbar ${light ? 'is-light' : ''}`}>
-      <span className="statusbar-time">{time}</span>
-      <span className="dynamic-island" />
-      <span className="statusbar-icons">
-        <svg className="signal-icon" viewBox="0 0 18 12" fill="none" aria-hidden="true">
-          <rect x="0" y="8" width="2.6" height="4" rx="1" fill="currentColor" />
-          <rect x="4.6" y="6" width="2.6" height="6" rx="1" fill="currentColor" />
-          <rect x="9.2" y="3.2" width="2.6" height="8.8" rx="1" fill="currentColor" />
-          <rect x="13.8" y="0" width="2.6" height="12" rx="1" fill="currentColor" />
-        </svg>
-        <svg className="wifi-icon" viewBox="0 0 16 11" fill="none" aria-hidden="true">
-          <path d="M1 3.5A10.7 10.7 0 0 1 15 3.5M3.6 6A7.1 7.1 0 0 1 12.4 6M6.1 8.4a3.2 3.2 0 0 1 3.8 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="8" cy="10.2" r=".7" fill="currentColor" />
-        </svg>
-        <svg className="battery-icon" viewBox="0 0 24 12" fill="none" aria-hidden="true">
-          <rect x="1" y="1.4" width="19.5" height="9.2" rx="2.6" stroke="currentColor" strokeWidth="1.2" opacity=".6" />
-          <rect x="3" y="3.4" width="14.5" height="5.2" rx="1.3" fill="currentColor" />
-          <path d="M22 4.4v3.3c.9-.3 1.3-.8 1.3-1.7 0-.8-.4-1.3-1.3-1.6Z" fill="currentColor" opacity=".6" />
-        </svg>
-      </span>
-    </div>
-  )
-}
-
 function BottomNav() {
   const { activeTab, goTab, navigate } = useStore()
   return (
@@ -84,7 +46,7 @@ function BottomNav() {
               key={tab.id}
               className="tabbar-item scan-tab"
               onClick={() => navigate('scan')}
-              aria-label="扫描添加物品"
+              aria-label="拍照识别并添加物品"
             >
               <span className="scan-bubble">
                 <ScanLine size={24} strokeWidth={1.8} />
@@ -158,31 +120,6 @@ function RouteView() {
   }
 }
 
-function ShowcaseChrome() {
-  return (
-    <div className="showcase-chrome" aria-hidden="true">
-      <div className="showcase-brand">
-        <LogoWordmark />
-        <p>Know what you have, where it is,<br />and when it expires.</p>
-      </div>
-      <div className="showcase-caption">
-        <span>交互原型 · 2026</span>
-        <span>Household essentials, quietly organized.</span>
-      </div>
-      <div className="showcase-side-note">
-        <span>01</span>
-        <p>3D 家的空间</p>
-        <span>02</span>
-        <p>智能到期提醒</p>
-        <span>03</span>
-        <p>过期自主决定</p>
-      </div>
-      <div className="showcase-orb orb-a" />
-      <div className="showcase-orb orb-b" />
-    </div>
-  )
-}
-
 function PhoneShell() {
   const {
     route,
@@ -198,30 +135,20 @@ function PhoneShell() {
   const isScan = route.name === 'scan'
 
   return (
-    <div className="prototype-stage">
-      <ShowcaseChrome />
-      <div
-        className={`phone-shell ${showTabBar ? 'has-tabbar' : ''} ${hasFixedAction ? 'has-fixed-action' : ''} ${isScan ? 'is-scanning' : ''}`}
-      >
-        <StatusBar light={isScan} />
-        <main className={`app-scroll ${isScan ? 'is-fullscreen' : ''}`}>
-          <div
-            className="route-transition"
-            key={`${route.name}-${route.params?.id || ''}-${stack.length}`}
-          >
-            <RouteView />
-          </div>
-        </main>
-        {showTabBar && <BottomNav />}
-        <Sidebar />
-        <div id="phone-layer" className="phone-layer" />
-        <ConfirmDialog state={confirmState} onResolve={resolveConfirm} />
-        <Toast toast={toastState} />
-      </div>
-      <div className="mobile-prototype-mark" aria-hidden="true">
-        <BrandMark size={22} />
-        HomeKeep · Interactive prototype
-      </div>
+    <div className={`app-shell ${showTabBar ? 'has-tabbar' : ''} ${hasFixedAction ? 'has-fixed-action' : ''} ${isScan ? 'is-scanning' : ''}`}>
+      <main className={`app-scroll ${isScan ? 'is-fullscreen' : ''}`}>
+        <div
+          className="route-transition"
+          key={`${route.name}-${route.params?.id || ''}-${stack.length}`}
+        >
+          <RouteView />
+        </div>
+      </main>
+      {showTabBar && <BottomNav />}
+      <Sidebar />
+      <div id="phone-layer" className="phone-layer" />
+      <ConfirmDialog state={confirmState} onResolve={resolveConfirm} />
+      <Toast toast={toastState} />
     </div>
   )
 }

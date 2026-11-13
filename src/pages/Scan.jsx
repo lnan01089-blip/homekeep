@@ -196,7 +196,7 @@ export default function Scan() {
           </button>
           <div className="scan-mode-label">
             <span />
-            扫描
+            拍照识别
           </div>
           <button
             className={`scan-round-button ${torchOn ? 'is-on' : ''}`}
@@ -210,7 +210,7 @@ export default function Scan() {
         {mode === 'camera' ? (
           <>
             <div className="scan-instruction-top">
-              <p>将物品或标签对准取景框</p>
+              <p>将物品或标签置于取景框内</p>
             </div>
 
             <div className="scanner-area">
