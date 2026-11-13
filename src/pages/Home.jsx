@@ -1,31 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Boxes, CalendarDays, MapPin, Menu, X } from 'lucide-react'
+import { Boxes, CalendarDays, ChevronLeft, ChevronRight, MapPin, Menu, X } from 'lucide-react'
 import { findLocation, formatDate } from '../data'
 import { useStore } from '../store'
-
-
-function MiniHomeDoodle() {
-  return (
-    <div className="mini-home-doodle" aria-hidden="true">
-      <svg viewBox="0 0 132 106" fill="none">
-        <ellipse cx="66" cy="94" rx="47" ry="7" fill="#7B8C7C" opacity=".1" />
-        <path d="M25 53.6 66 24l41 29.6v38.1c0 3.2-2.5 5.8-5.7 5.8H30.7c-3.2 0-5.7-2.6-5.7-5.8V53.6Z" fill="#E8EFE7" />
-        <path d="M20 57 66 23l46 34v7.4L66 31 20 64.4V57Z" fill="#A9C8B8" />
-        <path d="M43 64h24v33H43z" fill="#F7F4EC" />
-        <path d="M47 69h7v8h-7zM56 69h7v8h-7zM47 80h7v8h-7zM56 80h7v8h-7z" fill="#B9D1C2" />
-        <path d="M82 34v30" stroke="#C4A27C" strokeWidth="2" strokeLinecap="round" />
-        <path d="M82 37c7-2 10-7 11-12-6-.2-10 4-11 12Z" fill="#7D9D85" />
-        <path d="M82 48c-7-2-10-6-11-11 6 0 10 4 11 11Z" fill="#9DB7A1" opacity=".9" />
-        <rect x="39" y="97" width="60" height="3" rx="1.5" fill="#D5C5AD" />
-        <path d="M95 92c-7-8-6-19 2-25 8 7 7 18-2 25Z" fill="#D9E6DB" />
-        <path d="M98 91c4-9 10-13 18-13-1 8-7 13-18 13Z" fill="#C3D6C6" />
-        <circle cx="26" cy="38" r="3" fill="#D7B98F" opacity=".7" />
-        <circle cx="109" cy="52" r="2" fill="#C4D7C8" />
-        <path d="M29 20v-7M23.5 15h11" stroke="#B7CABB" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
-    </div>
-  )
-}
 
 const statItems = [
   { key: 'total', label: '在库物品', tone: 'neutral' },
@@ -34,16 +10,29 @@ const statItems = [
   { key: 'low', label: '库存不足', tone: 'low' },
 ]
 
+const MIN_YEAR = 2000
+const MAX_YEAR = 2045
+
 export default function Home() {
   const { helpers, navigate, items, settings, openSidebar } = useStore()
-  const [popover, setPopover] = useState(null)
   const calendarHeaderRef = useRef(null)
-  const { activeItems, soonItems, lowItems, expiredCount } = helpers
+  const swipeStartRef = useRef(null)
+  const swipeMovedRef = useRef(false)
+  const suppressClickRef = useRef(false)
+  const [popover, setPopover] = useState(null)
+  const [swipeOffset, setSwipeOffset] = useState(0)
+
   const today = new Date()
-  const year = today.getFullYear()
-  const month = today.getMonth() + 1
-  const day = today.getDate()
-  const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(today)
+  const currentYear = today.getFullYear()
+  const currentMonth = today.getMonth() + 1
+  const [visibleMonth, setVisibleMonth] = useState(
+    () => new Date(currentYear, currentMonth - 1, 1),
+  )
+
+  const { activeItems, soonItems, lowItems, expiredCount } = helpers
+  const year = visibleMonth.getFullYear()
+  const month = visibleMonth.getMonth() + 1
+  const isViewingCurrentMonth = year === currentYear && month === currentMonth
   const firstWeekday = new Date(year, month - 1, 1).getDay()
   const daysInMonth = new Date(year, month, 0).getDate()
   const calendarCells = [
@@ -53,19 +42,31 @@ export default function Home() {
   while (calendarCells.length % 7 !== 0) calendarCells.push(null)
 
   const monthKey = `${year}-${`${month}`.padStart(2, '0')}`
-  const eventsByDay = useMemo(() => {
+
+  const expiryByDay = useMemo(() => {
     const result = {}
     items.forEach((item) => {
       if (!item.expiryDate || !item.expiryDate.startsWith(monthKey)) return
-      const needsAttention =
-        helpers.isTrash(item) || helpers.isRetainedExpired(item) || helpers.isSoon(item)
-      if (!needsAttention) return
       const dayNumber = Number(item.expiryDate.slice(8, 10))
       if (!result[dayNumber]) result[dayNumber] = []
       result[dayNumber].push(item)
     })
     return result
-  }, [items, monthKey, helpers])
+  }, [items, monthKey])
+
+  const attentionByDay = useMemo(() => {
+    const result = {}
+    Object.entries(expiryByDay).forEach(([dayNumber, dayItems]) => {
+      const attention = dayItems.filter(
+        (item) =>
+          helpers.isTrash(item) ||
+          helpers.isRetainedExpired(item) ||
+          helpers.isSoon(item),
+      )
+      if (attention.length) result[dayNumber] = attention
+    })
+    return result
+  }, [expiryByDay, helpers])
 
   const eventTone = (item) => {
     if (helpers.isTrash(item) || helpers.isRetainedExpired(item)) return 'expired'
@@ -73,12 +74,71 @@ export default function Home() {
     return 'normal'
   }
 
-  const selectedEvents = popover ? eventsByDay[popover.day] || [] : []
+  const selectedEvents = popover ? expiryByDay[popover.day] || [] : []
+
+  const canGoPrevious =
+    !(year === MIN_YEAR && month === 1)
+  const canGoNext = !(year === MAX_YEAR && month === 12)
+
+  const changeMonth = (delta) => {
+    const next = new Date(year, month - 1 + delta, 1)
+    if (next.getFullYear() < MIN_YEAR || next.getFullYear() > MAX_YEAR) return
+    setVisibleMonth(next)
+    setPopover(null)
+    setSwipeOffset(0)
+  }
+
+  const handleSwipeStart = (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return
+    swipeStartRef.current = { x: event.clientX, y: event.clientY }
+    swipeMovedRef.current = false
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+  }
+
+  const handleSwipeMove = (event) => {
+    const start = swipeStartRef.current
+    if (!start) return
+    const dx = event.clientX - start.x
+    const dy = event.clientY - start.y
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      swipeMovedRef.current = true
+      setSwipeOffset(Math.max(-58, Math.min(58, dx)))
+    }
+  }
+
+  const finishSwipe = (event) => {
+    const start = swipeStartRef.current
+    if (!start) return
+    const dx = event.clientX - start.x
+    const dy = event.clientY - start.y
+    swipeStartRef.current = null
+    setSwipeOffset(0)
+    if (swipeMovedRef.current && Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) {
+      suppressClickRef.current = true
+      window.setTimeout(() => {
+        suppressClickRef.current = false
+      }, 280)
+      changeMonth(dx > 0 ? -1 : 1)
+    }
+    swipeMovedRef.current = false
+  }
+
+  const cancelSwipe = () => {
+    swipeStartRef.current = null
+    swipeMovedRef.current = false
+    setSwipeOffset(0)
+  }
 
   useEffect(() => {
     if (!popover) return undefined
     const closeOnOutside = (event) => {
-      if (event.target.closest('.calendar-popover') || event.target.closest('.month-day.has-events')) return
+      if (
+        event.target.closest('.calendar-popover') ||
+        event.target.closest('.month-day') ||
+        event.target.closest('.month-calendar-nav')
+      ) {
+        return
+      }
       setPopover(null)
     }
     const closeOnEscape = (event) => {
@@ -93,6 +153,7 @@ export default function Home() {
   }, [popover])
 
   const openDayPopover = (event, date) => {
+    if (suppressClickRef.current) return
     if (popover?.day === date) {
       setPopover(null)
       return
@@ -101,7 +162,7 @@ export default function Home() {
     if (!header) return
     const headerRect = header.getBoundingClientRect()
     const cellRect = event.currentTarget.getBoundingClientRect()
-    const width = Math.min(286, headerRect.width - 14)
+    const width = Math.min(300, headerRect.width - 14)
     const anchorX = cellRect.left - headerRect.left + cellRect.width / 2
     const left = Math.max(7, Math.min(anchorX - width / 2, headerRect.width - width - 7))
     setPopover({
@@ -127,7 +188,6 @@ export default function Home() {
     if (key === 'low') navigate('reminders', { tab: 'low' })
   }
 
-
   return (
     <div className="page home-page">
       <header className="home-header home-calendar-header" ref={calendarHeaderRef}>
@@ -137,69 +197,91 @@ export default function Home() {
           </button>
         </div>
         <div className="home-calendar-card month-calendar-card">
-          <div className="month-calendar-head">
-            <div>
-              <strong>{month}月</strong>
-              <span>{year}</span>
-            </div>
-            <span className="month-calendar-weekday">{weekday}</span>
+          <div className="month-calendar-nav">
+            <button
+              className="month-nav-button"
+              onClick={() => changeMonth(-1)}
+              disabled={!canGoPrevious}
+              aria-label="上个月"
+            >
+              <ChevronLeft size={19} />
+            </button>
+            <strong className="month-calendar-title">
+              {year}年{month}月
+            </strong>
+            <button
+              className="month-nav-button"
+              onClick={() => changeMonth(1)}
+              disabled={!canGoNext}
+              aria-label="下个月"
+            >
+              <ChevronRight size={19} />
+            </button>
           </div>
           <div className="month-week-labels" aria-hidden="true">
             {['日', '一', '二', '三', '四', '五', '六'].map((label) => (
               <span key={label}>{label}</span>
             ))}
           </div>
-          <div className="month-grid" role="group" aria-label={`${year}年${month}月日历`}>
+          <div
+            className="month-grid"
+            role="group"
+            aria-label={`${year}年${month}月日历`}
+            style={{
+              transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined,
+              transition: swipeOffset ? 'none' : undefined,
+            }}
+            onPointerDown={handleSwipeStart}
+            onPointerMove={handleSwipeMove}
+            onPointerUp={finishSwipe}
+            onPointerCancel={cancelSwipe}
+          >
             {calendarCells.map((date, index) => {
               if (!date) return <span key={`empty-${index}`} className="month-day is-empty" />
-              const events = eventsByDay[date] || []
-              const dayLabel = `${month}月${date}日${date === day ? `，${weekday}` : ''}${
-                events.length ? `，${events.map((item) => item.name).join('、')}` : ''
+              const allEvents = expiryByDay[date] || []
+              const attention = attentionByDay[date] || []
+              const dateWeekday = new Intl.DateTimeFormat('zh-CN', {
+                weekday: 'long',
+              }).format(new Date(year, month - 1, date))
+              const isToday =
+                isViewingCurrentMonth && date === today.getDate()
+              const dayLabel = `${year}年${month}月${date}日，${dateWeekday}${
+                allEvents.length ? `，${allEvents.map((item) => item.name).join('、')}` : ''
               }`
-              const content = (
-                <>
+              return (
+                <button
+                  type="button"
+                  key={`${year}-${month}-${date}`}
+                  className={`month-day is-selectable ${attention.length ? 'has-events' : ''} ${
+                    isToday ? 'is-today' : ''
+                  } ${popover?.day === date ? 'is-selected' : ''}`}
+                  onClick={(event) => openDayPopover(event, date)}
+                  aria-label={dayLabel}
+                  aria-selected={popover?.day === date}
+                  aria-expanded={popover?.day === date}
+                  aria-controls="calendar-date-popover"
+                  title={allEvents.length ? allEvents.map((item) => item.name).join('、') : dayLabel}
+                >
                   <span className="month-day-number">{date}</span>
-                  {events.length > 0 && (
+                  {attention.length > 0 && (
                     <span className="month-day-dots" aria-hidden="true">
-                      {events.slice(0, 3).map((item, dotIndex) => (
+                      {attention.slice(0, 3).map((item, dotIndex) => (
                         <i key={`${item.id}-${dotIndex}`} className={`month-event-dot tone-${eventTone(item)}`} />
                       ))}
                     </span>
                   )}
-                </>
-              )
-              return events.length ? (
-                <button
-                  type="button"
-                  key={`${month}-${date}`}
-                  className={`month-day has-events ${date === day ? 'is-today' : ''}`}
-                  onClick={(event) => openDayPopover(event, date)}
-                  aria-label={dayLabel}
-                  aria-expanded={popover?.day === date}
-                  aria-controls="calendar-date-popover"
-                  title={events.map((item) => item.name).join('、')}
-                >
-                  {content}
                 </button>
-              ) : (
-                <span
-                  key={`${month}-${date}`}
-                  className={`month-day ${date === day ? 'is-today' : ''}`}
-                  aria-label={dayLabel}
-                >
-                  {content}
-                </span>
               )
             })}
           </div>
           <p className="home-calendar-tagline">Everything, kept with care.</p>
         </div>
-        {popover && selectedEvents.length > 0 && (
+        {popover && (
           <div
             className="calendar-popover"
             id="calendar-date-popover"
             role="dialog"
-            aria-label={`${month}月${popover.day}日的物品`}
+            aria-label={`${year}年${month}月${popover.day}日的物品`}
             style={{
               left: `${popover.left}px`,
               top: `${popover.top}px`,
@@ -210,28 +292,35 @@ export default function Home() {
             <button className="calendar-popover-close" onClick={() => setPopover(null)} aria-label="关闭">
               <X size={13} />
             </button>
-            <div className="calendar-popover-list">
-              {selectedEvents.map((item) => {
-                const itemLocation = findLocation(item.location)
-                return (
-                  <div className="calendar-popover-item" key={item.id}>
-                    <span className={`calendar-popover-dot tone-${eventTone(item)}`} />
-                    <div className="calendar-popover-copy">
-                      <strong>{item.name}{item.variant ? ` · ${item.variant}` : ''}</strong>
-                      <span className="calendar-popover-meta">
-                        <span>
-                          <MapPin size={12} />
-                          {itemLocation.name}
+            <div className={`calendar-popover-list ${selectedEvents.length ? '' : 'is-empty'}`}>
+              {selectedEvents.length ? (
+                selectedEvents.map((item) => {
+                  const itemLocation = findLocation(item.location)
+                  return (
+                    <div className="calendar-popover-item" key={item.id}>
+                      <span className={`calendar-popover-dot tone-${eventTone(item)}`} />
+                      <div className="calendar-popover-copy">
+                        <strong>{item.name}{item.variant ? ` · ${item.variant}` : ''}</strong>
+                        <span className="calendar-popover-meta">
+                          <span>
+                            <MapPin size={12} />
+                            {itemLocation.name}
+                          </span>
+                          <span>
+                            <CalendarDays size={12} />
+                            {formatDate(item.expiryDate, settings.dateFormat)}{item.expiryTime ? ` ${item.expiryTime}` : ''}
+                          </span>
                         </span>
-                        <span>
-                          <CalendarDays size={12} />
-                          {formatDate(item.expiryDate, settings.dateFormat)}{item.expiryTime ? ` ${item.expiryTime}` : ''}
-                        </span>
-                      </span>
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })
+              ) : (
+                <div className="calendar-popover-empty">
+                  <span className="calendar-empty-dot" />
+                  当天没有到期物品
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -267,7 +356,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
     </div>
   )
 }

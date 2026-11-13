@@ -10325,3 +10325,180 @@ body {
     max-width: none;
   }
 }
+
+/* =========================================================
+   Navigable month calendar
+   ========================================================= */
+
+.month-calendar-nav {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 2px;
+}
+
+.month-calendar-title {
+  min-width: 170px;
+  color: #3e4b43;
+  font-size: 25px;
+  font-weight: 630;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.month-nav-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 11px;
+  color: #718379;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 3px 10px rgba(66, 77, 71, 0.04);
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.month-nav-button:active {
+  transform: scale(0.92);
+}
+
+.month-nav-button:disabled {
+  opacity: 0.32;
+}
+
+.month-week-labels {
+  margin-top: 16px;
+}
+
+.month-week-labels span {
+  color: #a2aaa2;
+  font-size: 12.5px;
+  font-weight: 550;
+}
+
+.month-grid {
+  margin-top: 7px;
+  row-gap: 2px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.month-grid:active {
+  cursor: grabbing;
+}
+
+.month-day {
+  height: 36px;
+  border: 0;
+  border-radius: 11px;
+  color: #77837b;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.month-day.is-selectable {
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.month-day.is-selectable:hover {
+  background: rgba(220, 233, 226, 0.4);
+}
+
+.month-day.is-selected {
+  color: #52675a;
+  background: rgba(220, 233, 226, 0.72);
+  box-shadow: inset 0 0 0 1.5px rgba(111, 150, 130, 0.36);
+}
+
+.month-day.is-today {
+  color: #fbfdf9;
+  background: #789a85;
+  box-shadow: 0 5px 14px rgba(88, 123, 101, 0.2);
+  font-weight: 650;
+}
+
+.month-day.is-today.is-selected {
+  box-shadow:
+    0 0 0 2px rgba(120, 154, 133, 0.18),
+    0 5px 14px rgba(88, 123, 101, 0.22);
+}
+
+.month-day.is-today .month-event-dot {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.72);
+}
+
+.month-day-number {
+  line-height: 1.05;
+}
+
+.month-day-dots {
+  height: 5px;
+  gap: 3px;
+}
+
+.month-event-dot {
+  width: 4px;
+  height: 4px;
+}
+
+.month-calendar-card .home-calendar-tagline {
+  margin-top: 12px;
+  padding-top: 11px;
+  font-size: 15.5px;
+}
+
+.calendar-popover-list.is-empty {
+  padding: 4px 0 1px;
+}
+
+.calendar-popover-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px 10px;
+  color: #96a097;
+  font-size: 10.5px;
+}
+
+.calendar-empty-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #bdcec1;
+}
+
+.calendar-popover-copy strong {
+  font-size: 14px;
+}
+
+.calendar-popover-meta {
+  font-size: 11px;
+}
+
+@media (max-width: 370px) {
+  .month-calendar-title {
+    min-width: 148px;
+    font-size: 22px;
+  }
+
+  .month-day {
+    height: 33px;
+    font-size: 14px;
+  }
+
+  .month-nav-button {
+    width: 31px;
+    height: 31px;
+  }
+}
